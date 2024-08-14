@@ -256,14 +256,51 @@ we can look at the permission policies and see that it also has "administrator a
 
 ![](/img/03/22.png)
 
-Now, let’s go back to our dashboard and sign in with our user "Nuria". First, we can look at our user account, which has an account ID and a sign-in URL. You can easily customize this sign-in URL by creating what's called an account alias. For example, it could be "alexjust"." Then click on "Create alias." The alias has to be unique, so if it’s not available, try something like "v5." Using this alias, I can simplify my sign-in URL.
+Now, let’s go back to our dashboard and sign in with our user "Nuria". First, we can look at our user account, which has an account ID and a sign-in URL. You can easily customize this sign-in URL by creating what's called an account alias. For example, it could be "Nuriajust"." Then click on "Create alias." The alias has to be unique, so if it’s not available, try something like "v5." Using this alias, I can simplify my sign-in URL.
 
 ![](/img/03/23.png)
 
-To sign in using my "Nuria" account, we could use the same browser, or we could create a new browser window in private mode. The benefit of doing this is that we can have two windows side by side using AWS. If you don’t do this, that’s fine. But if you log in using the "Nuria" account on the right-hand side window, you will be disconnected on the left-hand side. This is the only difference. To use two accounts simultaneously—the root on the left and my account on the right—a trick I use is opening a private window in my web browser. Chrome, Firefox, and Safari all have this feature. By pasting the sign-in URL, as you can see, I get the sign-in as an IAM user.
+To sign in using my "Nuria" account, we could use the same browser, or we could create a new browser window in private mode. The benefit of doing this is that we can have two windows side by side using AWS. If you don’t do this, that’s fine. But if you log in using the "Nuria" account on the right-hand side window, you will be disconnected on the left-hand side. This is the only difference. To use two accounts simultaneously—the root on the left and my account on the right—a trick I use is opening a private window in my web browser. Chrome, Firefox, and Safari all have this feature. By pasting the sign-in URL, as you can see, I get the sign-in as an IAM user. 
 
 ![](/img/03/24.png)
 
 To get to this page, we can go back to one, and as you can see, when you do a sign-in on AWS, you have the option to sign in as the root user or the IAM user. To get back to this, select IAM user, then enter either the account ID or the account alias that I copied earlier. This will take you to the sign-in page. The IAM username will be "Nuria", and the password will be whatever you set earlier. Then you sign in.
 
 The cool thing is that if I look at the top right-hand side, I am logged in using my IAM user. It displays the account ID and the IAM user. However, if I look at the top right-hand side of the other window, it just shows the account ID, indicating that it’s the root account.
+
+![](/img/03/25.png)
+
+And now, if I look at the top right-hand side here, it just displays the Account ID, indicating that it’s the root account. So, to summarize, we have the root account logged in on the left-hand side through a regular window, and the IAM user logged in on the right-hand side through a private window.
+
+Please ensure you do not lose your root account credentials or your admin login information, as this could lead to significant issues with your account, requiring you to contact AWS support for assistance. Unfortunately, I cannot help you with that. From a course perspective, I recommend using your IAM user rather than your root user, but this is just general advice. Sometimes you'll see me using the root account, and other times I'll be using an IAM user. I will let you know during the course when it's necessary to use the root account or when to use an IAM user, so don't worry about that.
+
+### IAM Policies inheritance
+
+Okay, let's now discuss IAM policies in depth. Imagine we have a group of developers—Alice, Bob, and Charles—and we attach a policy at the group level. In this case, the policy will be applied to every member of the group. So Alice, Bob, and Charles will all get access and inherit this policy. If you have a second group, such as operations, with a different policy, David and Edward will have a different policy from the developers' group. If Fred is a user, he has the option not to belong to any group, and we have the possibility to create what's called an inline policy, which is a policy that is only attached to a specific user. So that user could or could not belong to a group. You can create inline policies for whichever user you want.
+
+Finally, if Charles and David both belong to the audit team, and you attach a policy to the audit team as well, Charles and David will also inherit that policy from the audit team. In this case, Charles has a policy from the developers' group and a policy from the audit team, while David has a policy from the audit team and a policy from the operations team. This should make a lot of sense when we get into the hands-on part.
+
+![](/img/03/26.png)
+
+**IAM Policies Structure**
+
+Now, in terms of policy structure, you just need to know at a high level how it works and how it is named. This is something you will see frequently in AWS, so get familiar with this structure. It is a JSON document. An inline policy structure consists of a version number, which is usually 2012-10-17—this is the policy language version—an ID, which is used to identify the policy (this is optional), and one or more statements. Each statement has several important parts: the SID is the statement ID, which is an identifier for the statement and is also optional. The effect specifies whether the statement allows or denies access to certain APIs; in the example on the right-hand side, it shows "allow," but it could also be "deny." The principal defines which account, user, or role the policy applies to; in this example, it is applied to the root account of your AWS account. The action is the list of API calls that will be either denied or allowed based on the effect, and the resource is a list of resources to which the actions will be applied. In the example, it is a bucket, but it could be many different things. Lastly, there's a condition that specifies when the statement should be applied or not, but this is optional and not represented in the example.
+
+![](/img/03/27.png)
+
+As you prepare for the exam, make sure you thoroughly understand the effect, principal, action, and resource components. Don't worry; you'll encounter these concepts throughout the course, and you should feel confident with them by the end. That's it for this lecture. I hope you enjoyed it, and I will see you in the next lecture.
+
+
+**IAM – Password Policy**
+
+Strong passwords = higher security for your account.  
+In AWS, you can setup a password policy:
+• Set a minimum password length  
+• Require specific character types: • including uppercase letters  
+• lowercase letters  
+• numbers  
+• non-alphanumeric characters
+• Allow all IAM users to change their own passwords
+• Require users to change their password after some time (password expiration)
+• Prevent password re-use
+
