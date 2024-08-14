@@ -168,7 +168,7 @@ https://aws.amazon.com/aup/
 • No E-Mail or Other Message Abuse
 
 
-### IAM Section
+### IAM - Identity and Acces Management
 
 **IAM: Users & Groups**
 
@@ -274,7 +274,7 @@ And now, if I look at the top right-hand side here, it just displays the Account
 
 Please ensure you do not lose your root account credentials or your admin login information, as this could lead to significant issues with your account, requiring you to contact AWS support for assistance. Unfortunately, I cannot help you with that. From a course perspective, I recommend using your IAM user rather than your root user, but this is just general advice. Sometimes you'll see me using the root account, and other times I'll be using an IAM user. I will let you know during the course when it's necessary to use the root account or when to use an IAM user, so don't worry about that.
 
-### IAM Policies inheritance
+#### IAM Policies inheritance
 
 Okay, let's now discuss IAM policies in depth. Imagine we have a group of developers—Alice, Bob, and Charles—and we attach a policy at the group level. In this case, the policy will be applied to every member of the group. So Alice, Bob, and Charles will all get access and inherit this policy. If you have a second group, such as operations, with a different policy, David and Edward will have a different policy from the developers' group. If Fred is a user, he has the option not to belong to any group, and we have the possibility to create what's called an inline policy, which is a policy that is only attached to a specific user. So that user could or could not belong to a group. You can create inline policies for whichever user you want.
 
@@ -290,11 +290,126 @@ Now, in terms of policy structure, you just need to know at a high level how it 
 
 As you prepare for the exam, make sure you thoroughly understand the effect, principal, action, and resource components. Don't worry; you'll encounter these concepts throughout the course, and you should feel confident with them by the end. That's it for this lecture. I hope you enjoyed it, and I will see you in the next lecture.
 
+#### IAM Policies Hands On
 
-**IAM – Password Policy**
+So now let's have a look at IAM policies in depth. First of all, let's go into Users. As you can see, the user Nuria is part of the admin group and therefore has administrator access permissions to AWS. That means that if I use my user Nuria to go into the IAM console—so now I'm using my user—and then I go to the left-hand side and click on Users, as you can see, I can see my user Nuria, which is right here. My user Nuria has permission to do anything because right now it's an administrator. 
+
+![](/img/03/28.png)
+
+But what I'm going to do is go to the admin group, and then I'm going to remove my user Nuria from that group. By removing the user, which I've done right now, Nuria loses its permissions on the right-hand side. How do we make sure of this? Well, let's refresh this page. 
+
+![](/img/03/29.png)
+![](/img/03/30.png)
+
+As you can see, now I see zero users, and I get an access denied, and it says that I don't have permission to do `iam:ListUsers`. Therefore, because I removed my Nuria user from the admin group, I've lost permissions to look at users on the right-hand side. 
+
+
+
+Let's try to fix this. Let's go into IAM, and we're going to go under Users, find Nuria here. Right now, as you can see, Nuria has zero permission policies. But let's add permissions. We can add permissions directly or create an inline policy. Let's add permissions, as this will be easier. Again, we could add the user back to a group, but that's not what we want. We could attach policies directly to my user. The policy I'm going to attach is `IAM read-only access`. This will allow my user Nuria to read anything on IAM, which is what we want. Let's add this permission. Now this policy has been added. 
+
+![](/img/03/31_.png)
+
+Back here, let's refresh this page. 
+
+![](/img/03/32.png)
+
+As you can see now, I can finally do my API call again and look at the Nuria user in my Users category. I can view users. I can view user groups, such as admin. But can I create a group? Let's try to create the developer group and then create this group. As you can see, I cannot create it because I'm not allowed to create a group. I'm only given `read-only access on IAM`. Therefore, because I have read-only access, I cannot create groups. 
+
+![](/img/03/33.png)
+
+This shows you that you can only permission users for what they're supposed to do. Of course, if I wanted to give access to create groups on the right-hand side, I would need to attach a broader permission set, such as `IAM full access`.
+
+
+Next, let's do something. I'm going to go to the left-hand side under User Groups, and I'm going to create a group. This group is going to be called Developers. I'm going to add the user Nuria to this group and attach whatever policy I can find. For example, Alexa for Business, but it doesn't really matter. Just attach the first policy you find. Let's create this group. 
+
+![](/img/03/34.png)
+
+![](/img/03/35.png)
+
+Okay, this has been added. Finally, let's go into the admin group. Again, we're going to add users and re-add Nuria to this group. 
+
+![](/img/03/36.png)
+
+Now, if we go back to the Nuria user—let's go into IAM, look at the users, and look at Nuria—I'm going to shut down this machine on the right-hand side. 
+
+![](/img/03/37.png)
+
+If we look at Nuria as a user, as you can see, we have three permission policies attached to my user. We have the administrator access that has been inherited from the admin group. We have this Alexa for Business managed policy that has been attached by the developers group. And finally, IAM read-only access that has been attached directly. As you can see, I inherited different permissions based on how they were attached. 
+
+![](/img/03/38.png)
+
+Now let's look at policies in detail. On the left-hand side, let's look at policies. First, let's have a look at this administrator access policy. 
+
+![](/img/03/39.png)
+
+If we look at it, it's the permission that gave us administrator access to everything. If you look at the permissions defined in this policy, as a summary, you can see this allows all the services in AWS. This number can change over time, but it doesn't matter. The course will be up to date. All these services, for example, App Mesh, Alexa for Business, or Amplify, all have full access. How is this permission defined? If you click on JSON, this is the JSON form of this policy. 
+
+![](/img/03/40.png)
+
+We can see that here we have allow, action star, and resource star. Star in AWS means anything. It means we allow any action on any resource. Allowing any action on any resource is the same as giving administrator access to someone. This is how it's been defined. 
+
+![](/img/03/41.png)
+
+Let's look at another policy, for example, the IAM read-only access that we saw before. If we look at it, we see that IAM is authorized with `full list and limited read` in **Acces level**. 
+
+![](/img/03/42.png)
+
+If I click on it, you can actually see all the API calls that have been allowed as part of this policy, which is very handy. But if we look at how this has been defined, let's click on JSON. Here we have the JSON document that shows how this has been defined. 
+
+![](/img/03/43.png)
+
+The effect is allow. Then we list the API calls that are allowed. We have this one, this one, and then we have `"iam:Get*",`. When you have `get star`, it means that anything that starts with get and then has something after it is authorized, for example, get users or get groups. The same goes for list, so we have list star, meaning list users or list groups. By using a star, we encompass and group many API calls together. All this is allowed on resource star. That summarizes what the read-only IAM access policy is made up of. This is very handy. 
+
+You can also create your own policy. Let's create a policy. We have a visual editor or a JSON editor. 
+
+![](/img/03/44.png)
+
+If you have JSON, you can simply edit this and create your JSON document with this builder, which is very handy. Or you can use the visual editor. For example, let's say IAM. 
+
+![](/img/03/45.png)
+
+We want to create stuff for IAM. What action do we want to authorize? We want to authorize list users. 
+
+![](/img/03/46.png)
+
+We're going to take this and `get user` —just two API calls. 
+
+![](/img/03/47.png)
+
+As you can see, we have selected one out of 38 in list and one out of 32 in read. Then what do we want to authorize this on? On all resources or only specific resources? 
+
+![](/img/03/48.png)
+
+This is a very simple one, but as you can see, this builder is very handy. When you click on Next, you can look and say `My IAM Permissions`, and then we create this policy. 
+
+![](/img/03/49.png)
+
+If we look at the policy we created, 
+
+![](/img/03/50.png)
+
+we can look at the corresponding JSON and see that, indeed, through the visual editor, we allowed IAM list users and IAM get user on resource star. 
+
+![](/img/03/51.png)
+
+This policy can be attached to groups, users, and so on. This is how you manage permissions in AWS. To wrap up this hands-on, let's go to User Groups, and we're going to delete the Developers group because we don't need it. 
+
+![](/img/03/52.png)
+
+Then I'm going to go into my Nuria user, and I'm going to remove this IAM read-only access that I had attached directly. Now Nuria only belongs to the admin group and has administrator access. Of course, if I go back to my IAM console here and just look at users, as you can see, yes, everything is showing fine, so it is working correctly.
+
+![](/img/03/53.png)
+
+---
+
+#### IAM – Password Policy
+
+Now that we have created users and groups, it is time to protect these users and groups from being compromised. For this, we have two defense mechanisms.  The first one is to define what's called a password policy. Why? Well, because the stronger the password you use, the more security you have for your accounts. 
 
 Strong passwords = higher security for your account.  
+
 In AWS, you can setup a password policy:  
+
 • Set a minimum password length  
 • Require specific character types: • including uppercase letters  
 • lowercase letters  
@@ -303,4 +418,46 @@ In AWS, you can setup a password policy:
 • Allow all IAM users to change their own passwords  
 • Require users to change their password after some time (password expiration)  
 • Prevent password re-use  
+
+In AWS, you can set up a password policy with different options. The first option is to set a minimum password length, and you can require specific character types. For example, you may want to require an uppercase letter, a lowercase letter, a number, and a non-alphanumeric character, such as a question mark, and so on. Then you can allow or prevent IAM users from changing their own passwords. Additionally, you can require users to change their password after a certain period to enforce password expiration. For example, you could require users to change their passwords every 90 days. Finally, you can also prevent password reuse, ensuring that users don’t change their passwords to the one they already have or to one they had before. This is great because a password policy is really helpful against brute force attacks on your accounts.
+
+**Multi Factor Authentication - MFA**
+But there's a second defense mechanism that you need to know about, especially for the exam, and that is multi-factor authentication (MFA). You may have already used it on some websites, but on AWS, it is a must, and it is highly recommended to use it. Users have access to your account, and they can potentially do a lot of things, especially if they are administrators. They can change configurations, delete resources, and perform other actions. Therefore, you absolutely want to protect at least your root account and, ideally, all your IAM users. So, how do we protect them in addition to the password? By using an MFA device.
+
+
+• Users have access to your account and can possibly change configurations or delete resources in your AWS account
+• You want to protect your Root Accounts and IAM users
+• MFA = password you know + security device you own
+
+
+![](/img/03/54.png)
+
+• Main benefit of MFA: if a password is stolen or hacked, the account is not compromised
+
+So, what are the MFA device options in AWS? You need to know them for the exam, but don't worry, they are quite simple. The first option is a virtual MFA device. This is what we will use in the hands-on portion, and you can use apps like Google Authenticator, which works on one phone at a time, or Authy, which supports multiple tokens on a single device. With a virtual MFA device, you can have your root account, your IAM user, another account, and another IAM user all on the same device. You can have as many users and accounts as you want on your virtual MFA device, making it a very convenient solution.
+
+---
+
+**MFA devices options in AWS**
+
+What is MFA? MFA involves using a combination of something you know, like a password, and something you own, like a security device. These two factors together provide much greater security than just a password alone. For example, let's consider Alice. Alice knows her password, but she also has an MFA-generating token. By using these two factors together when logging in, she can successfully authenticate with MFA. The benefit of MFA is that even if Alice's password is stolen or hacked, the account will not be compromised because the hacker would also need to have access to Alice's physical device, such as her phone, to log in. Obviously, this is much less likely to happen.
+
+Next, we have a Universal Second Factor (U2F) security key. This is a physical device, such as a YubiKey by Yubico, which is a third-party product not provided by AWS. A physical device like this is easy to use; you simply attach it to your keychain, and you're good to go. The YubiKey supports multiple root and IAM users using a single security key, so you don't need to carry multiple keys for different users, which would be a hassle.
+
+![](/img/03/55.png)
+
+---
+
+**MFA devices options in AWS**
+
+There are other options as well. You can use a hardware key fob MFA device, such as one provided by Gemalto, which is also a third-party product. Finally, if you are using AWS GovCloud in the US, there is a special key fob provided by SurePassID, also a third-party product.
+
+![](/img/03/56.png)
+
+That's the theory on how to protect your account. In the next lecture, we will implement these security measures. I will see you in the next lecture.
+
+---
+
+### IAM MFA Hands On
+
 
