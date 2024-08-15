@@ -1,12 +1,19 @@
 
 
-[AWS Certified Cloud Practitioner CLF-C02](AWS Certified Cloud Practitioner CLF-C02)
-[What is a Cloud Computing?](What is a Cloud Computing?)
-
-
-
 ## AWS Certified Cloud Practitioner CLF-C02
 
+- [AWS Certified Cloud Practitioner CLF-C02](#aws-certified-cloud-practitioner-clf-c02)
+  - [What is a Cloud Computing?](#what-is-a-cloud-computing)
+  - [IAM - Identity and Acces Management](#iam---identity-and-acces-management)
+    - [IAM Policies inheritance](#iam-policies-inheritance)
+    - [IAM Policies Hands On](#iam-policies-hands-on)
+    - [IAM – Password Policy](#iam--password-policy)
+    - [IAM MFA Hands On](#iam-mfa-hands-on)
+      - [CLI \& SDK](#cli--sdk)
+    - [AWS CloudShell](#aws-cloudshell)
+    - [IAM Roles for AWS Services](#iam-roles-for-aws-services)
+
+---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
 https://explore.skillbuilder.aws/learn/course/external/view/elearning/14050/aws-certified-cloud-practitioner-official-practice-question-set-clf-c02-english
@@ -21,7 +28,7 @@ Your account will be activated when you receive an email like this: `When your 1
 
 Details can be found here: https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/
 
-
+---
 ### What is a Cloud Computing?
 
 **What is a server composed of?**
@@ -465,7 +472,7 @@ That's the theory on how to protect your account. In the next lecture, we will i
 
 ---
 
-### IAM MFA Hands On
+#### IAM MFA Hands On
 
 So we are going to first define a password policy. For this, click on Account Settings on the left-hand side. `IAM` > `Account Settings` You will find `Password Policy`, and you can edit it. 
 
@@ -522,7 +529,7 @@ Example (Fake) Access Keys
 ![](/img/03/66.png)
 
 
-#### CLI & SDK
+##### CLI & SDK
 
 **What’s the AWS CLI?**
 
@@ -560,3 +567,131 @@ It supports many different programming languages, such as JavaScript, Python, PH
 To give you an example of what you can build with the SDK, the AWS CLI that we're going to be using in this course is actually built on the AWS SDK for Python named Boto.
 
 In the next lecture, we're going to practice setting up the CLI and dealing with access keys. 
+
+
+**AWS CLI Setup on Mac**
+
+https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+
+1. In your browser, download the macOS pkg file:  https://awscli.amazonaws.com/AWSCLIV2.pkg
+
+If you have installed correctly, open de terminal and show de version
+```sh
+➜  ~ aws --version
+aws-cli/2.17.30 Python/3.11.9 Darwin/23.3.0 exe/x86_64
+```
+
+So let me show you how to create access keys. I will click on my username, Nuria, and go to Security Credentials. I will scroll down and create an access key. 
+
+![](/img/03/68.png)
+
+As you can see, there are some selections you need to make, and based on the selection I'm making—for example, if I want an access key for the CLI—AWS is going to provide alternative recommendations. For example, for the CLI, it's better to use Cloud Shell, which I will show you in the next lecture, so don't worry about it, or to use CLI v2 with authentication through the IAM Identity Center, which I won't show you because it's a bit more complicated. Based on what you want to do—whether it's local code, an application running outside of AWS, in AWS, and so on—you will have some recommendations at the bottom.
+
+For now, we're going to use the CLI, and we'll use these access keys. I'll click here to acknowledge that I understand the above recommendations, but I still want to create an access key because it is important for you to understand how they work and what they are. 
+
+![](/img/03/69.png)
+
+So let's create this access key, and now this is the only time you'll be able to access the access key and the secret access key.
+
+![](/img/03/70.png)
+
+Now, I'll go back to a previous version of that lecture where you see the old UI, but don't worry, nothing changes from that point on. The first thing I have to do is configure my AWS CLI, so I'm going to type `aws configure` on terminal, and then I'm prompted to enter my access key ID. Very nice. I can just enter this one and press Enter, and then I'm prompted to enter my secret access key, which I will enter right here as well. The default region name is the region that is closest to you. I will choose us-east-1 because I will be doing all my tutorials in us-east-1, but you should choose your own region. You can enter your own region name, and by the way, you can get the region name directly from this dropdown right here. It shows you the name of the region as well as the region code. So for me, I'm going to use us-east-1. I'll press Enter, and for the default output format, I'll just press Enter as well.
+
+```sh
+➜  ~ aws configure              
+AWS Access Key ID [****************AGQD]: AKIASFIXCXAFSSIT7GS
+AWS Secret Access Key [****************tiAp]: Wa3mydyvQR4tlEqq/+a7qKIfFQySjJWelBQP3r
+Default region name [eu-central-1]: eu-west-1
+Default output format [json]: 
+```
+
+So now Nuria AWS CLI is configured, and we can see how it works. We can do aws iam list-users and press Enter, and this will list all the users in my account. As we can see, the user I have right now is called Nuria. Here is the user ID, here is the ARN, when it was created, and when the password was last used, which is very similar to what I would get if I were to go into this UI right here. The Management Console and the CLI provide similar kinds of information.
+
+Having multiple IAM users in an AWS account is a common and recommended practice. Each user can have different permissions and credentials. The fact that both "Alex" and "Nuria" exist as users in the account does not mean they are using the same credentials. It simply means that both users have been created in the AWS account.
+
+```sh
+➜  ~ aws iam list-users   
+
+{
+    "Users": [
+        {
+            "Path": "/",
+            "UserName": "Alex",
+            "UserId": "AIDASFIXCXAFSBSZAH6YO",
+            "Arn": "arn:aws:iam::148761655307:user/Alex",
+            "CreateDate": "2024-08-14T10:50:02+00:00",
+            "PasswordLastUsed": "2024-08-14T11:40:06+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "Nuria",
+            "UserId": "AIDASFIXCXAF7F3AAWSRL",
+            "Arn": "arn:aws:iam::148761655307:user/Nuria",
+            "CreateDate": "2024-08-14T10:53:51+00:00",
+            "PasswordLastUsed": "2024-08-14T16:43:13+00:00"
+        }
+    ]
+}
+```
+
+Verification of the Current User:
+
+If you want to verify that the credentials currently configured belong to Nuria, you can run the following command. This command will return information about the user or role you are currently using, based on the credentials configured in your default profile. You should see an ARN that refers to the user "Nuria" if the configured credentials belong to Nuria.
+
+```sh
+➜  ~ aws sts get-caller-identity
+
+
+{
+    "UserId": "AIDASFIXCXAF7F3AAWSRL",
+    "Account": "148761655307",
+    "Arn": "arn:aws:iam::148761655307:user/Nuria"
+}
+```
+
+Next, I want to show you what happens if we remove permissions from our user. So I'm going to go to Admins, and I'm going to remove the Nuria user from the `admin` group. 
+
+![](/img/03/71.png)
+
+So again, if I go back to my user Nuria, it doesn't have any permissions. I did this obviously with my root account, not the other account.
+
+![](/img/03/72.png)
+
+Now, if I go into my UI and refresh this page, I'm going to get an error saying that I do not have permission to do this. 
+
+![](/img/03/73.png)
+
+But let's try to do the same thing with the CLI. So we're going to do an iam list-users call, and we get no response because it was denied. 
+
+```sh
+➜  ~ aws iam list-users         
+
+An error occurred (AccessDenied) when calling the ListUsers operation: 
+User: arn:aws:iam::148761655307:user/Nuria is not authorized to perform: iam:ListUsers on resource: 
+arn:aws:iam::148761655307:user/ because no identity-based policy allows the iam:ListUsers action
+```
+
+
+The CLI permissions are, of course, the exact same as the permissions you get from the IAM console.
+
+So the takeaway from this lecture is that you can access AWS using the Management Console or by using an access key and secret access key that you can configure and then use in the CLI. 
+
+And obviously, do not forget to add your user back into the group; otherwise, that would be horrible. So I'm going to go into Groups, Admins, and I'm going to add my Nuria user back into my group. Now I am an administrator again. So that's it. I will see you in the next lecture.
+
+![](/img/03/74.png)
+
+---
+
+#### AWS CloudShell
+
+https://docs.aws.amazon.com/cloudshell/latest/userguide/faq-list.html
+
+![](/img/03/76.png)
+
+![](/img/03/77.png)
+
+![](/img/03/78.png)
+
+
+#### IAM Roles for AWS Services
+
