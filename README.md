@@ -45,6 +45,9 @@
     - [EC2 Instance Storage - Summary](#ec2-instance-storage---summary)
     - [Section Cleanup](#section-cleanup)
   - [Elastic Load Balancing \& Auto Scaling Groups Section](#elastic-load-balancing--auto-scaling-groups-section)
+    - [Elastic Load Balancing (ELB) Overview](#elastic-load-balancing-elb-overview)
+    - [Application Load Balancer (ALB) Hands On](#application-load-balancer-alb-hands-on)
+    - [uuu](#uuu)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -2339,3 +2342,275 @@ That’s it for the cleanup. Everything should be in order now. See you in the n
 
 
 ### Elastic Load Balancing & Auto Scaling Groups Section
+
+This is the section where we really see the power of the AWS cloud and the cloud in general and see how these new paradigms we discussed really help us shine and make our applications scale seamlessly. So let's discuss the concepts of scalability and high availability.
+
+**Scalability & High Availability**
+
+* Scalability means that an application / system can handle greater loads by adapting.
+* There are two kinds of scalability: • Vertical Scalability
+  * Horizontal Scalability (= elasticity)
+  * Scalability is linked but different to High Availability
+* Let’s deep dive into the distinction, using a call center as an example
+
+If your application can scale, it means that it can handle greater loads by adapting. There are two kinds of scalability in the cloud: vertical scalability and horizontal scalability, also called elasticity. Scalability is linked, but different, from high availability, and these concepts will be discussed in this section. Let's do a deep dive, and we'll use a call center as an example.
+
+Imagine we have a call center, and we just received a call. Now let's see what it means to be scalable in that case.
+
+**Vertical Scalability**
+
+* Vertical Scalability means increasing the size of the instance
+* For example, your application runs on a t2.micro
+* Scaling that application vertically means running it on a t2.large
+* Vertical scalability is very common for non distributed systems, such as a database.
+* There’s usually a limit to how much you can vertically scale (hardware limit)
+  
+![](/img/05/01.png)
+
+First, let's deal with vertical scalability. In AWS, when you are vertically scalable, it means that you can increase the size of the instance. So for our call center, say we have a junior operator, and if we were able to upgrade that operator, we would get a senior operator. For example, the senior operator can handle a lot more calls than the junior operator because they are more experienced. This is what vertical scalability looks like in a call center—if we could upgrade, obviously, a junior operator into a senior operator. In AWS, for example, say your application runs on a T2 micro, and to achieve vertical scalability for that application, you would run your application on a T2 large. So we've changed the size of our EC2 instance. Vertical scalability is very common when you have a non-distributed system, such as a database. If you want to improve the performance of your database, you would increase its size. However, with vertical scalability, there is usually a limit to how much you can scale vertically, and that limit is determined by the hardware, even though these limits can be very, very high nowadays.
+
+
+**Horizontal Scalability**
+
+• Horizontal Scalability means increasing the number of instances / systems for your application
+• Horizontal scaling implies distributed systems.
+• This is very common for web applications / modern applications
+• It’s easy to horizontally scale thanks the cloud offerings such as Amazon EC2
+
+![](/img/05/02.png)
+
+Next is horizontal scalability. Instead of increasing the size of your EC2 instance, you increase the number of instances or systems for your application. Going back to our call center example, if we have one operator and want to scale horizontally, we would add another operator. If we need to handle more calls, we would add yet another operator, and so on. Maybe we can scale horizontally from one operator to six operators. Horizontal scaling implies, as you can see on the right-hand side, that you need to have a distributed system. For a call center, this makes sense—each operator can take calls independently. In AWS, horizontal scaling is very common for web applications or modern applications, which are usually designed with horizontal scalability in mind. Scaling on AWS is made easy thanks to Amazon EC2 and auto-scaling groups, which we'll explore in this section.
+
+**High Availability**
+
+
+* High Availability usually goes hand in hand with horizontal scaling
+* High availability means running your application / system in at least 2 Availability Zones
+* The goal of high availability is to survive a data center loss (disaster)
+
+![](/img/05/03.png)
+
+Now let's talk about high availability, which goes hand-in-hand with horizontal scaling. High availability means that you are running your application system in at least two availability zones on AWS. For our call center, this would mean having a call center in New York and maybe a second one in San Francisco. If one of these call centers goes down—for example, due to a power outage in New York—we can still take calls in San Francisco, thus ensuring high availability. While San Francisco may be busier, we are at least surviving the disaster of a power outage in one of our buildings. In AWS, we use two availability zones to achieve this, with the goal of surviving a data center loss or disaster. In AWS, this disaster could be an earthquake, a power outage, or various other issues.
+
+**High Availability & Scalability For EC2**
+
+* Vertical Scaling: Increase instance size (= scale up / down) 
+  * From: t2.nano - 0.5G of RAM, 1 vCPU
+  * To: u-12tb1.metal – 12.3 TB of RAM, 448 vCPUs
+* Horizontal Scaling: Increase number of instances (= scale out / in) 
+  * Auto Scaling Group
+  * Load Balancer
+* High Availability: Run instances for the same application across multi AZ
+  * Auto Scaling Group multi AZ
+  * Load Balancer multi AZ
+
+To summarize, high availability** and scalability for EC2 involve:
+
+* **Vertical Scaling**: Increasing the instance size. You can scale up (increasing) or scale down (decreasing). For example, you can go from a T2 nano with 0.5 GB of RAM and one vCPU to a U-12tb1.metal, which has 12.3 terabytes of RAM and 448 vCPUs. This is vertical scalability.
+* **Horizontal Scaling**: Increasing the number of instances, known as scaling out, or decreasing the number of instances, known as scaling in. This involves using an auto-scaling group and a load balancer. This is the topic of this section.
+* **High Availability**: Running instances of the same application across multiple availability zones. This is achieved by leveraging an auto-scaling group in multi-AZ mode and a load balancer in multi-AZ mode.
+
+**Scalability vs Elasticity (vs Agility)**
+
+One last word. It's important to distinguish between scalability, elasticity, and agility. To summarize:
+
+* **Scalability**: The ability of a system to accommodate a larger load by making the hardware stronger (scaling up) or by adding nodes (scaling out). This means your application can scale.
+* **Elasticity**: A cloud-native concept where, once a system is scalable (either scaling up or out), it automatically scales based on the load it receives. This allows you to pay per use, match the demand with the right number of servers, and optimize costs. Elasticity is a key concept in AWS.
+* **Agility**: Although not directly related to scalability or elasticity, agility refers to the ability to quickly provision new IT resources, reducing the time to make resources available from weeks to minutes. This makes your organization more agile, enabling quicker iterations and faster progress.
+
+That's it for this section of the introduction. I hope you liked it, and I will see you in the next section.
+
+
+#### Elastic Load Balancing (ELB) Overview
+
+**What is load balancing?**
+
+![](/img/05/04.png)
+
+So let's see the first service that will allow us to be more elastic on AWS. This is called Elastic Load Balancing. A load balancer is a server that will forward internet traffic down to multiple servers downstream, which, in this context, will be EC2 instances. These instances are also called the back-end EC2 instances. Elastic Load Balancing is managed by AWS. We have a load balancer, which is what we will be publicly exposing to our users. Behind that load balancer, we will have multiple EC2 instances—maybe three in this case.
+
+When our first user interacts with the load balancer, the load balancer will direct the traffic to one of these EC2 instances. The EC2 instance will respond, and the user will receive the response. Now, if a second user comes in, the response will come from another EC2 instance, and if a third user comes in, as you can expect, the response will come from yet another EC2 instance. The load balancer distributes the incoming traffic across multiple EC2 instances, which allows us to better scale our back-end.
+
+**Why use a load balancer?**
+
+* Spread load across multiple downstream instances
+* Expose a single point of access (DNS) to your application • Seamlessly handle failures of downstream instances
+* Do regular health checks to your instances
+* Provide SSL termination (HTTPS) for your websites
+* High availability across zones
+
+You can spread the load across multiple downstream instances.
+You can expose a single point of access (a DNS hostname) for your application.
+You can seamlessly handle the failures of downstream instances by performing regular health checks on them. If an instance fails, the load balancer will not direct traffic to it, thus hiding the failure of an EC2 instance.
+You can easily provide SSL termination (HTTPS) for your websites.
+You can use a load balancer across multiple availability zones, making your application highly available.
+
+
+**Why use an Elastic Load Balancer?**
+
+* An ELB (Elastic Load Balancer) is a `managed load balancer`
+  * AWS guarantees that it will be working
+  * AWS takes care of upgrades, maintenance, high availability 
+  * AWS provides only a few configuration knobs
+* It costs less to setup your own load balancer but it will be a lot more effort on your end (maintenance, integrations)
+* 4 kinds of load balancers offered by AWS:
+  * Application Load Balancer (HTTP / HTTPS only) – Layer 7
+  * Network Load Balancer (ultra-high performance, allows for TCP) – Layer 4
+  * Gateway Load Balancer – Layer 3
+  * Classic Load Balancer (retired in 2023) – Layer 4 & 7
+
+![](/img/05/05.png)
+
+Elastic Load Balancing is a managed service, so you don't need to provision servers—AWS takes care of that. AWS guarantees that the load balancer will work, handling all upgrades, maintenance, and high availability. The only thing we need to do is configure a few settings for the load balancer's behavior. While it’s possible to set up your own load balancer on EC2, using ELB is generally less expensive and saves you a lot of effort in terms of maintenance, integration, and operating system upgrades.
+
+AWS offers four types of load balancers, and it’s important to know the differences between them:
+
+1. Application Load Balancer (ALB): For HTTP and HTTPS-only traffic, this is a layer 7 load balancer because it operates at the application layer (HTTP/HTTPS).
+2. Network Load Balancer (NLB): Known for ultra-high performance, it operates at layer 4 and handles TCP and UDP traffic.
+3. Gateway Load Balancer (GWLB): Operates at layer 3 and is used to route traffic to security virtual appliances like firewalls.
+4. Classic Load Balancer (CLB): A legacy load balancer that supported both layer 4 and layer 7 traffic. However, it’s being retired in 2023 and is no longer relevant for the exam, as it has been replaced by ALB and NLB.
+
+
+---
+
+**Exam Key Points:**
+
+* **ALB (Application Load Balancer)**: If you see references to HTTPS, HTTP, or gRPC protocols, it’s layer 7, so it’s the ALB. It's also the choice when you need HTTP routing features or a static DNS hostname.
+* **NLB (Network Load Balancer)**: Operates at layer 4 (TCP/UDP) and is ideal for scenarios requiring ultra-high performance, capable of handling millions of requests per second. It provides a static IP address through the use of Elastic IPs.
+* **GWLB (Gateway Load Balancer)**: Operates at layer 3 using the GENEVE protocol for IP packet handling. It's used to route traffic to firewalls or other third-party security virtual appliances for tasks such as intrusion detection or deep packet inspection.
+
+**How They Work:**
+
+* **ALB and NLB**: Users access the load balancers on the specified protocols (HTTP/HTTPS for ALB, TCP/UDP for NLB). The load balancers route traffic to the downstream EC2 instances.
+
+* **GWLB**: The Gateway Load Balancer directs traffic to virtual appliances running on EC2 instances (e.g., firewalls). After processing the traffic, it forwards it back to the GWLB, which then routes it to the final application.
+
+Understanding these differences between load balancers is crucial for the exam. If you've grasped these concepts, you’re well-prepared for related exam questions. I will see you in the next lecture for some questions.
+
+#### Application Load Balancer (ALB) Hands On
+
+So we're going to practice launching a load balancer, but first, we need to send traffic to something. So first, we're going to launch EC2 instances. I'll go into "Launch Instances" and launch two instances. On the right-hand side, I can see two instances, and the name for the first one will be "my first instance." We'll rename the second one later. We're going to use Amazon Linux 2. On this architecture, we'll use a T2 micro, and we'll proceed without a T2 key pair since we don't need SSH capability. We can use EC2 instances whenever we need to. For network settings, we'll select an existing security group and use the Launch Wizard 1 security group, which allows HTTP and SSH traffic into our EC2 instance. So that's perfect. We're going to use the basic storage settings. For advanced details, I'll scroll down and add some EC2 user data. I'll copy what I have here and paste it. 
+
+```sh
+#!/bin/bash
+# Use this for your user data (script from top to bottom)
+# install httpd (Linux 2 version)
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "<h1>Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
+```
+
+![](/img/05/07.png)
+![](/img/05/08.png)
+![](/img/05/09.png)
+
+
+This will launch the EC2 instance the same way we did before using this EC2 user data script. Now let's launch our two instances. Next, we're going to view all instances. I'll rename the second one "my second instance" and save it. Let's wait for these instances to be ready.
+
+
+![](/img/05/10.png)
+
+Now, my EC2 instances are ready. I'll copy the first IPv4 address, paste it into a browser, and visit the URL. As you can see, I get a "hello world" message from my instance, which is great. 
+
+![](/img/05/11.png)
+
+Then, I'll go to my second instance, copy the IPv4 address, paste it, press enter, and I get "hello world" again. As you can see, both instances give us "hello world" messages.
+
+![](/img/05/12.png)
+
+The last part is checking, and what we'd like to do is have only one URL to access these two EC2 instances and balance the load between them. For this, of course, we'll use a load balancer. Let's scroll down and look at load balancers. Here, you can create a load balancer. 
+
+![](/img/05/13.png)
+
+We have different load balancer types. In this demo, we're going to focus only on the application load balancer.
+
+You need to understand the difference between the `ALB`, the `network load balancer`, and `the gateway load balancer`. 
+
+* **The application load balancer** is for HTTP and HTTPS traffic. 
+* **The network load balancer** is for the TCP and UDP protocol, or TLS over TCP. This is something you're going to use when you need ultra-high performance, meaning millions of requests per second while maintaining ultra-low latency.
+* **The gateway load balancer** is used for security, intrusion detection, firewalls, and so on. It analyzes network traffic. The classic load balancer, by the time you watch this video, may be gone because it's being phased out. Therefore, I'm not going to discuss it.
+
+![](/img/05/15.png)
+
+
+Let's focus on creating the application **load balancer**. 
+
+I'm going to call this one "Demo ALB." If you want to read about how load balancing works, you can do so, but hopefully, the previous lecture was enough for you. The scheme is internet-facing, and the address type is IPv4.
+
+![](/img/05/16.png)
+
+For network mapping, we need to decide where to deploy the load balancer and how many availability zones to use. Let's deploy it in all of them. Great.
+
+![](/img/05/17.png)
+
+![](/img/05/18.png)
+
+ I'm going to create a new security group for it, and we only need to allow HTTP traffic. I'm going to call it "DemoSGLoadBalancer," allowing HTTP into the ALB. The inbound rule will allow all HTTP from anywhere. The outbound rule is fine. Let's create this security group.
+
+![](/img/05/19.png)
+
+Now that it's created, I can go back here, refresh the page, choose my "DemoSGLoadBalancer," and remove the default security group so that I'm left with only one security group.
+
+![](/img/05/20.png)
+
+Let's scroll down, and we are under listeners and routing. We need to route the traffic from HTTP on port 80 to a target group. A target group is nothing more than a group of my EC2 instances that were created. For this, we need to create a target group. Let's click here to create one.
+
+![](/img/05/21.png)
+
+The basic configuration tells us that we want to group instances together. You have other options, but we want to group instances together, and I'll call this one "DemoTGALB." The protocol is HTTP on port 80. There are different options, but based on the option you choose, it's going to be a target group for a different kind of load balancer. We'll keep it as HTTP on port 80, with the HTTP version as 1. The health check is good. Let's click on "Next."
+
+
+
+![](/img/05/22.png)
+
+
+![](/img/05/23.png)
+
+We need to register our targets, so we're going to register both EC2 instances on port 80 and include them as pending below. Now, my instances are registered, and let's create this target group. 
+
+![](/img/05/24.png)
+
+Let's create it. 
+
+![](/img/05/25.png)
+
+Now, I need to refresh my page. The one I want to use is "DemoTGALB." This target is created, and it's linked to the listener on my load balancer on port 80. 
+
+![](/img/05/26.png)
+
+
+Now I'm good to go, and I can go ahead and `create my load balancer`.
+
+I'll click on "View Load Balancer," and I'm back on this page where I can look at my load balancer. Right now, it is in the provisioning phase, so we need to wait until it is provisioned.
+
+![](/img/05/28.png)
+
+
+My ALB is now active. It's ready. As you can see, there's a DNS name available for me. I'm going to copy this, paste it into a new tab, and through the application load balancer, I'm able to get a LOL. The cool thing about it is that if I refresh this page and keep on refreshing it, the target is changing. That's because my application load balancer is redirecting between both my EC2 instances, which is very cool, and that's proof that load balancing is happening.
+
+How do we know? If we go to our target group and look at the targets of my target group, both are healthy. This means that the application load balancer, through the target group, is sending traffic to both of them, one after the other. The target group is very smart because if I take my first instance and stop it, it's going to be unhealthy because it can't respond to the incoming traffic.
+
+
+
+#### uuu
+
+**What’s an Auto Scaling Group?**
+* In real-life, the load on your websites and application can change
+* In the cloud, you can create and get rid of servers very quickly
+* The goal of an Auto Scaling Group (ASG) is to:
+  * Scale out (add EC2 instances) to match an increased load
+  * Scale in (remove EC2 instances) to match a decreased load
+  * Ensure we have a minimum and a maximum number of machines running 
+  * Automatically register new instances to a load balancer
+  * Replace unhealthy instances
+* Cost Savings: only run at an optimal capacity (principle of the cloud)
+
+
+**Auto Scaling Group in AWS**
+
+![](/img/05/06.png)
+
+
+**Auto Scaling Group in AWS With Load Balancer**
