@@ -37,8 +37,14 @@
     - [EBS Snapshots Hands On](#ebs-snapshots-hands-on)
     - [AMI Overview](#ami-overview)
     - [AMI Hands On](#ami-hands-on)
-    - [EBS Overview](#ebs-overview)
-    - [About EBS Multi-Attach](#about-ebs-multi-attach-1)
+    - [EC2 Image Builder](#ec2-image-builder)
+    - [EC2 Instance Store](#ec2-instance-store)
+    - [EFS – Overview](#efs--overview)
+    - [Shared Responsibility Model for EC2 Storage](#shared-responsibility-model-for-ec2-storage)
+    - [Amazon FSx Overview](#amazon-fsx-overview)
+    - [EC2 Instance Storage - Summary](#ec2-instance-storage---summary)
+    - [Section Cleanup](#section-cleanup)
+  - [Elastic Load Balancing \& Auto Scaling Groups Section](#elastic-load-balancing--auto-scaling-groups-section)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -2063,16 +2069,273 @@ So our instance is launched, and what's going to happen is that the instance wil
 
 I'll get a connection error, a refusal, and so on. I need to make sure I'm also using the HTTP protocol, of course. But it just won't work, right, because you need to give it a bit of time. Even if it says running, you need to wait for the EC2 user data script to run for the first time. This might take a minute or two, but don't rush—just wait for it to be done. Then, at some point, when you refresh, you will see the screen. It took about two minutes, but now I have my test page. This is the basic page from the Apache web server, so we're good to go.
 
+![](/img/04/97.png)
 
 Now, what we're going to do is create an AMI because we want to save the state of our EC2 instance and reuse it. So I right-click, go to Image and Template, and then select Create Image. 
 
 ![](/img/04/95.png)
 
-We'll call this one "demo image," and we're going to create our own AMI. The settings right here can be left as is. Click Create Image. Now, an AMI is being created. If I go to the left-hand side and click on AMIs, we can see that my demo AMI is registered. Right now, the status is pending because it is being created. We need to be patient and wait for it to reach the created state.
+We'll call this one "demo image," and we're going to create our own AMI. The settings right here can be left as is. Click Create Image. 
+
+![](/img/04/96.png)
+
+Now, an AMI is being created. If I go to the left-hand side and click on AMIs, we can see that my demo AMI is registered. Right now, the status is pending because it is being created. We need to be patient and wait for it to reach the created state.
+
+Once my Amazon AMI is created, I can launch instances from this AMI by clicking here. 
+
+![](/img/04/98.png)
+
+Alternatively, if you are on the instance creation page, you can launch instances from AMI. 
+
+In the Quick Start tab, we have access to the ones we know, but we can also go to the My AMIs tab. Under "Owned by me," you can choose the demo image you just created. Scroll down, select a key pair or not—it's up to you. Network settings can be edited again, and we'll select the existing Launch Wizard 1 security group.
+
+![](/img/04/99.png)
+
+![](/img/04/100.png)
+
+In the advanced settings at the very bottom, I'll enter some user data. I copy the first three lines, which start with a hash, and then the last line, which is the echo on a new line. What we’re doing is simply writing a new file; we don’t need to reinstall HTTPD because this AMI already contains HTTPD, which speeds up the boot time. This is why you would create an AMI. We launch the instance, and now the instance is launched, so I can click on it. 
+
+![](/img/04/101.png)
+
+```sh
+#!/bin/bash
+# Use this for your user data (script from top to bottom)
+# install httpd (Linux 2 version)
+echo "<h1>Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
+```
+
+This is the one from the AMI. I need to wait for it to be fully created. Once my instance from the AMI is running, I take the public IP address, and then I see the "Hello World" message. As you can see, this was much quicker because we didn’t have to install HTTPD again.
+
+![](/img/04/102.png)
+
+![](/img/04/103.png)
+
+This demonstrates the power of AMIs. You can imagine using this process for more than just HTTPD—it could be security software, a lot of pre-installed software, and so on. You install it, maybe it takes two or three minutes, then package it as an AMI. When you start from the AMI, you might do some end customization, but you get a much faster boot time, and you're good to go.
+
+So let's wrap up this demo. To clean up, take your two instances and terminate them. That’s it. I’ll see you in the next lecture.
+
+---
+
+#### EC2 Image Builder
+
+* Used to automate the creation ofVirtual Machines or container images
+* => Automate the creation, maintain, validate and test EC2 AMIs
+* Can be run on a schedule (weekly, whenever packages are updated, etc...) 
+* Free service (only pay for the underlying resources)
 
 
+![](/img/04/104.png)
+
+--
+
+Okay, let’s talk about a new service that I really like and that is now included in the exam: EC2 Image Builder. This service is used to automate the creation of virtual machines or container images. So, what does that mean for the exam? It means that with EC2 Image Builder, you can automate the creation, maintenance, validation, and testing of AMIs for EC2 instances.
+
+Let’s take a closer look at how this works through a diagram. EC2 Image Builder is the service that manages the entire process. When it runs, it automatically creates an EC2 instance called a Builder EC2 Instance. This instance is responsible for building components and customizing the software. For example, it might install Java, update the CLI, apply system updates, install firewalls, or even deploy your application—whatever you’ve defined in the process. Once this customization is done, an AMI is created from that EC2 instance. But remember, all of this is automated.
+
+After the AMI is created, it needs to be validated. EC2 Image Builder will automatically launch a Test EC2 Instance from that AMI and run a series of tests that you have pre-defined. If you don’t want to run any tests, you can skip this step. However, these tests can be crucial—they might check if the AMI is working properly, if it’s secure, if your application is running correctly, and so on. Once the AMI passes all the tests, it is then ready to be distributed.
+
+Although EC2 Image Builder is a regional service, you can distribute the AMI to multiple regions. This capability allows your application and workflow to be truly scalable and available across different geographical areas.
+
+Additionally, EC2 Image Builder can be run on a schedule. You can define a weekly schedule, set it to run whenever packages are updated, or trigger it manually. It’s a flexible service that adapts to your needs.
+
+One important point to note is that EC2 Image Builder itself is a free service. However, you will incur costs for the underlying resources it uses. What does this mean? It means that when an EC2 instance is created during this process (and EC2 Image Builder will create these instances), you will be charged for the EC2 instances. Similarly, once the AMI is created and distributed, you’ll pay for the storage of that AMI in every region where it is stored. But this should all make sense, right?
 
 
-#### EBS Overview
+#### EC2 Instance Store
 
-#### About EBS Multi-Attach
+* EBS volumes are network drives with good but “limited” performance
+* If you need a high-performance hardware disk, use EC2 Instance Store
+* Better I/O performance
+* EC2 Instance Store lose their storage if they’re stopped (ephemeral)
+* Good for buffer / cache / scratch data / temporary content
+* Risk of data loss if hardware fails
+* Backups and Replication are your responsibility
+
+We've discussed how to attach a network drive to our EC2 instances, which offers good performance—though sometimes, you might need even higher performance. For those cases, you can use a hardware disk directly attached to your EC2 instance.
+
+Although an EC2 instance is a virtual machine, it is connected to a physical server, and some of these servers have disk space that is physically attached to them. A special type of EC2 instance can leverage something called an EC2 Instance Store, which refers to this hardware disk attached directly to the physical server.
+
+Using an EC2 instance store provides significantly better I/O performance and higher throughput, making it an excellent choice when you need extremely high disk performance. However, there’s a caveat: if you stop or terminate an EC2 instance that uses an instance store, the storage will be lost—hence the term "ephemeral storage." This means that an EC2 instance store is not suitable for durable, long-term data storage.
+
+So, when is it appropriate to use an EC2 instance store? It’s ideal for scenarios where you need a buffer, a cache, scratch data, or temporary content. But for long-term storage, services like EBS (Elastic Block Store) are more appropriate.
+
+It’s also important to note that if the underlying server of your EC2 instance fails, you risk losing the data stored on the instance store because the storage is tied directly to that specific server. Therefore, if you choose to use an EC2 instance store, it’s your responsibility to back up the data and replicate it as needed.
+
+To give you an idea of the performance difference, consider the i3 instance type, which comes with an instance store. The read and write IOPS (input/output operations per second) for these instances can reach up to 3.3 million and 1.4 million IOPS, respectively, for the most performant options. In comparison, an EBS volume of type GP2 can reach up to 32,000 IOPS, which is significantly lower. This example is just to illustrate the substantial performance difference.
+
+**Local EC2 Instance Store**
+
+![](/img/04/105.png)
+
+From an exam perspective, whenever you encounter a scenario requiring very high-performance hardware-attached volumes for your EC2 instances, think of the local EC2 Instance Store.
+
+
+#### EFS – Overview
+
+
+**EFS – Elastic File System**
+
+* Managed NFS (network file system) that can be mounted on 100s of EC2
+* EFS works with Linux EC2 instances in multi-AZ
+* Highly available, scalable, expensive (3x gp2), pay per use, no capacity planning
+
+--
+
+Now, let’s talk about a third type of storage you can attach to an EC2 instance: a network file system called EFS (Elastic File System). EFS is a managed network file system, and its key advantage is that it can be mounted to hundreds of EC2 instances simultaneously.
+
+Unlike an EBS volume, which can only be attached to a single EC2 instance at a time, an EFS drive can be shared across multiple EC2 instances, making it a shared network file system or shared EFS. This feature is particularly useful for scenarios where multiple instances need to access the same data.
+
+EFS is designed to work with your Linux EC2 instances and can function across multiple availability zones (AZs). This means that an instance in one AZ can access the same EFS volume as an instance in another AZ, providing high availability and redundancy.
+
+While EFS is highly available, scalable, and easy to use, it is also relatively expensive—about three times the cost of a GP2 EBS volume. However, with EFS, you pay based on your usage rather than for a predefined capacity. For instance, if you store 20 gigabytes of data on your EFS drive, you only pay for those 20 gigabytes.
+
+--
+
+To visualize this, imagine an EFS file system with its own security group. You could have EC2 instances in different availability zones, say, us-east-1a, us-east-1b, and us-east-1c, all connected to the same EFS file system. This setup allows all these instances to share the same data seamlessly.
+
+
+![](/img/04/106.png)
+
+**EBS vs EFS**
+
+Now let's outline the exact differences between EBS (Elastic Block Store) and EFS (Elastic File System).
+
+With EBS, if you have two EC2 instances in one Availability Zone (AZ) and another instance in a different AZ, the EBS volume can only be attached to one instance within a specific AZ at a time. EBS volumes are bound to the AZ they were created in. If you want to move an EBS volume from one AZ to another, you would create a snapshot of the EBS volume, then restore that snapshot into the new AZ. This process effectively moves the EBS volume to a different AZ, but it’s important to note that this is a copy, not an in-sync replica. This means that the EBS volume in the new AZ is independent, and the original volume cannot be used by another EC2 instance in a different AZ simultaneously.
+
+On the other hand, EFS is a network file system, which means that whatever is stored on the EFS drive is shared across all instances that have it mounted. For example, if you have many instances in Availability Zone 1 and others in Availability Zone 2, all of these instances can mount the same EFS drive using a mount target, and they will all see the same files. This makes EFS a shared file system, allowing multiple instances across different AZs to access the same data simultaneously.
+
+Hopefully, this explanation makes the differences between EBS and EFS clear. Understanding this is important, as the exam may test you on these concepts.
+
+![](/img/04/107.png)
+
+
+**EFS Infrequent Access (EFS-IA)**
+
+![](/img/04/108.png)
+
+
+Additionally, there’s a storage class you need to know about for EFS: EFS Infrequent Access (EFS-IA). This storage class is cost-optimized for files that you don’t access very often—perhaps not every day. EFS-IA offers up to 92% lower costs for storing data compared to the EFS Standard storage class.
+
+If you enable EFS-IA, EFS will automatically move your files to EFS-IA based on the last time they were accessed, according to a lifecycle policy that you define. For instance, imagine you have an EFS file system with three files in EFS Standard and a fourth file that hasn’t been accessed for 60 days. If your lifecycle policy is configured to move files to EFS-IA after 60 days of inactivity, this fourth file will be moved to EFS-IA, resulting in cost savings.
+
+The process is automatic, and the next time you access this file, it will be moved back into EFS Standard, assuming it is accessed frequently. The key point here is that this is a cost-saving optimization, and from an application perspective, it’s completely transparent. Your applications don’t need to know whether the file is in EFS Standard or EFS-IA—they access files in the same way regardless of the storage class. The cost optimizations are handled behind the scenes by EFS.
+
+This is an important concept to understand for the exam. I hope you found this explanation helpful, and I will see you in the next lecture.
+
+
+#### Shared Responsibility Model for EC2 Storage
+
+![](/img/04/110.png)
+
+Understanding the shared responsibility model is crucial for the Certified Cloud Practitioner exam, especially when it comes to EC2 storage. This model helps clarify which security and management tasks are handled by AWS and which are the customer’s responsibility.
+
+**AWS’s Responsibilities:**
+
+Infrastructure Management: AWS is responsible for maintaining the underlying infrastructure that powers EC2 instances, EBS, and EFS. This includes the physical servers, networking, and storage hardware.
+
+Data Replication: AWS is responsible for replicating data across multiple hardware components, as specified in the technical documentation for services like EBS and EFS. This ensures that if one piece of hardware fails, your data remains accessible and you, as a customer, are not impacted.
+
+Hardware Maintenance: If an EBS volume or part of it fails due to hardware issues, AWS is responsible for replacing the faulty hardware to ensure continued service availability.
+
+Data Access Security: AWS must ensure that their employees do not have unauthorized access to your data. This includes enforcing strict access controls and maintaining robust security protocols.
+
+**Customer Responsibilities:**
+
+Backup and Snapshots: It is your responsibility to set up and manage backup and snapshot procedures to protect your data. Regular backups are essential to prevent data loss.
+
+Data Encryption: Implementing data encryption is also your responsibility. Encrypting your data adds an additional layer of security, ensuring that even if data were somehow accessed by unauthorized parties, it remains protected. AWS provides tools for encryption, but enabling and managing encryption is up to you.
+
+Data Management: Any data you store on an EBS or EFS drive, and anything you write to those disks, is your responsibility. This includes managing the data lifecycle and ensuring that your data is secure.
+
+EC2 Instance Store Considerations: If you use an EC2 instance store, you must be aware of the associated risks. Data stored on an instance store is ephemeral, meaning it can be lost if the underlying hardware fails, or if you stop or terminate the EC2 instance. Therefore, it is your responsibility to back up any critical data stored in an instance store.
+
+Understanding these responsibilities is critical not only for the exam but also for effectively managing your resources on AWS. Knowing where your duties lie helps ensure that your data remains secure and your applications run smoothly.
+
+
+#### Amazon FSx Overview
+
+* Launch 3rd party high-performance file systems on AWS 
+* Fully managed service
+
+![](/img/04/111.png)
+
+**Amazon FSx for Windows File Server**
+
+![](/img/04/113.png)
+
+**Amazon FSx for Lustre**
+
+![](/img/04/112.png)
+
+
+#### EC2 Instance Storage - Summary
+
+* EBS volumes:
+  * network drives attached to one EC2 instance at a time
+  * MappedtoanAvailabilityZones
+  * Can use EBS Snapshots for backups / transferring EBS volumes across AZ
+* AMI: create ready-to-use EC2 instances with our customizations
+* EC2 Image Builder : automatically build, test and distribute AMIs
+* EC2 Instance Store:
+  * High performance hardware disk attached to our EC2 instance 
+  * Lost if our instance is stopped / terminated
+* EFS: network file system, can be attached to 100s of instances in a region 
+* EFS-IA: cost-optimized storage class for infrequent accessed files
+* FSx for Windows: Network File System for Windows servers
+* FSx for Lustre: High Performance Computing Linux file system
+
+#### Section Cleanup
+
+Let's do a quick cleanup to ensure we have a clean slate and avoid any unnecessary costs in the future.
+
+1. **EC2 Dashboard**: Start by going to the EC2 dashboard where you can see all the resources running in your region. Here’s what you need to check:
+
+   * **Running Instances**: If you see any running instances (e.g., two instances), open this in a new tab.
+   * **Volumes**: If you have any EBS volumes (e.g., four volumes), open this in a new tab as well.
+   * **Key Pairs**: Key pairs do not incur any costs, so you can leave them as is.
+   * **Snapshots**: If you have any snapshots (e.g., two snapshots), open this in a new tab.
+   * **Security Groups**: Security groups generally don’t cost money, so you can leave them as is.
+
+![](/img/04/114.png)
+
+**Terminate EC2 Instances:**
+
+In the EC2 Instances tab, select the instances you want to terminate. Right-click on them and choose Terminate.
+
+
+**Delete EBS Volumes:**
+
+After terminating the instances, some root EBS volumes will automatically be deleted. However, for any additional EBS volumes that are not attached to an instance, you will need to delete them manually.
+
+![](/img/04/115.png)
+
+**Delete Snapshots:**
+
+Go to the Snapshots tab and select the snapshots you want to delete. Choose Actions and then Delete Snapshot. If you encounter an error stating that a snapshot cannot be deleted because it’s being used by an AMI, proceed to the next step.
+
+![](/img/04/116.png)
+
+![](/img/04/117.png)
+
+**Deregister AMIs:**
+
+Go to the AMIs section on the left-hand side. Find the AMI that’s using the snapshot, and deregister it. Confirm the deregistration.
+Return to the Snapshots tab and delete the snapshot that was previously locked.
+
+
+![](/img/04/118.png)
+
+Now -> **Delete Snapshots:**
+
+Final Check:
+
+* Go back to the EC2 Instances tab to ensure all instances are terminated.
+* Check the Volumes tab to confirm all EBS volumes are deleted.
+* Verify that no Snapshots or AMIs remain.
+
+Refresh your EC2 dashboard, and if everything is clear—no running instances, volumes, snapshots, or AMIs—you’re good to go.
+
+That’s it for the cleanup. Everything should be in order now. See you in the next lecture!
+
+
+### Elastic Load Balancing & Auto Scaling Groups Section
