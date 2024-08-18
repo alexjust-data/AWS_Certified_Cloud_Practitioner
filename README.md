@@ -47,7 +47,11 @@
   - [Elastic Load Balancing \& Auto Scaling Groups Section](#elastic-load-balancing--auto-scaling-groups-section)
     - [Elastic Load Balancing (ELB) Overview](#elastic-load-balancing-elb-overview)
     - [Application Load Balancer (ALB) Hands On](#application-load-balancer-alb-hands-on)
-    - [uuu](#uuu)
+    - [Auto Scaling Groups (ASG) Overview](#auto-scaling-groups-asg-overview)
+    - [Auto Scaling Groups (ASG) Hands On](#auto-scaling-groups-asg-hands-on)
+    - [Auto Scaling Groups – Scaling Strategies](#auto-scaling-groups--scaling-strategies)
+    - [Section cleanup](#section-cleanup-1)
+    - [ELB \& ASG – Summary](#elb--asg--summary)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -2588,13 +2592,29 @@ I'll click on "View Load Balancer," and I'm back on this page where I can look a
 ![](/img/05/28.png)
 
 
-My ALB is now active. It's ready. As you can see, there's a DNS name available for me. I'm going to copy this, paste it into a new tab, and through the application load balancer, I'm able to get a LOL. The cool thing about it is that if I refresh this page and keep on refreshing it, the target is changing. That's because my application load balancer is redirecting between both my EC2 instances, which is very cool, and that's proof that load balancing is happening.
+My ALB is now active. It's ready. As you can see, there's a DNS name available for me. I'm going to copy this, paste it into a new tab, and through the application load balancer, I'm able to get a Hello World.. The cool thing about it is that if I refresh this page and keep on refreshing it, the target is changing. That's because my application load balancer is redirecting between both my EC2 instances, which is very cool, and that's proof that load balancing is happening.
 
-How do we know? If we go to our target group and look at the targets of my target group, both are healthy. This means that the application load balancer, through the target group, is sending traffic to both of them, one after the other. The target group is very smart because if I take my first instance and stop it, it's going to be unhealthy because it can't respond to the incoming traffic.
+![](/img/05/32.png)
 
+How do we know? If we go to our target group and look at the targets of my target group, both are healthy. This means that the application load balancer, through the target group, is sending traffic to both of them, one after the other. 
 
+![](/img/05/29.png)
 
-#### uuu
+The target group is very smart because if I take my first instance and stop it, it's going to be unhealthy because it can't respond to the incoming traffic.
+
+![](/img/05/30.png)
+
+If I go to my target group and refresh, I'll wait about 30 seconds. Now, as you can see, the first instance is unused because it's in a stopped state.
+
+![](/img/05/31.png)
+
+Therefore, if I go back to my application load balancer and refresh, the only response I'm getting is from the instance that is still up and running. This is the power of using a load balancer because they know when the targets are healthy or not. This instance is stopped, but if I recover it, start it again, it'll boot up and create the service behind the scenes.
+
+Let's wait for the instance to start, and hopefully, we'll see it again as healthy in our target group. The instance is now up, and we are in the initial health status. Now we are in healthy status, so the instance was deemed healthy. Therefore, if I go back to my application load balancer and refresh, the "hello world" is coming from both instances.
+
+That's it. We've practiced load balancer creation and included two targets in our group. I hope you liked it, and I'll see you in the next lecture.
+
+#### Auto Scaling Groups (ASG) Overview
 
 **What’s an Auto Scaling Group?**
 * In real-life, the load on your websites and application can change
@@ -2607,10 +2627,276 @@ How do we know? If we go to our target group and look at the targets of my targe
   * Replace unhealthy instances
 * Cost Savings: only run at an optimal capacity (principle of the cloud)
 
+--
+
+Okay, so now we have an application that can be load balanced through a load balancer. But how do we automatically create these servers in the backend? For this, we can use an autoscaling loop. So why? Well, in real life, the load on the websites can change over time. For example, say your users are shopping—they're most likely shopping during the day and not at night, so you expect more load during the day and less load during the night. In the cloud, we know we can create and get rid of servers very quickly, and the goal of an autoscaling group is to scale out, meaning adding EC2 instances to match an increased load, or scale in, meaning removing EC2 instances to match a decreased load. With this, we can ensure that we have a minimum and a maximum number of machines running at any point in time. Once the autoscaling group creates or removes EC2 instances, we can make sure that these instances will be registered or deregistered into our load balancer. So these two things work hand in hand.
+
+Finally, in case one of our servers becomes unhealthy, maybe due to an application bug, the autoscaling group can detect it and say, "Yeah, you know what, I don't need an unhealthy instance. I'm going to deregister it, terminate it, and replace it with a new healthy one." With an autoscaling group, we get a lot of benefits, and another benefit is that we have significant cost savings because we are only running at the optimal capacity, which is one of the guiding principles of the cloud.
 
 **Auto Scaling Group in AWS**
 
-![](/img/05/06.png)
+![](/img/05/33.png)
+
+So, if we look at our autoscaling group in AWS, this is it: We have a minimum size—maybe it's one EC2 instance. Then, there is a setting called the desired capacity, which is usually the actual size of your autoscaling group. Finally, you can define a maximum size for your autoscaling group. Automatically, your ASG (autoscaling group) can scale out as needed or scale in as needed by adding EC2 instances over time. It works hand in hand with a load balancer, meaning that if we have our autoscaling group, for example:
 
 
-**Auto Scaling Group in AWS With Load Balancer**
+**Auto Scaling Group in AWS ~ With Load Balancer**
+
+with one EC2 instance, web traffic can be coming in through our load balancer, which will be redirecting the traffic directly to your EC2 instance. As our autoscaling group scales out by adding EC2 instances, the load balancer will have them registered and will send traffic to them as well. So, as we add more and more EC2 instances, the load balancer distributes more and more of the traffic, all the way to the maximum size of your autoscaling group if it scales to that point.
+
+![](/img/05/34.png)
+
+That's it for this lecture. In the next lecture, we will be reproducing that very same setup with an autoscaling group, multiple EC2 instances, and a load balancer. I hope that was helpful, and I will see you in the next lecture.
+
+#### Auto Scaling Groups (ASG) Hands On
+
+Go ahead and practice creating an autoscaling group. You need to take your first two instances, and we're actually going to terminate them. 
+
+![](/img/05/35.png)
+
+
+Okay, now that this is done, we can go ahead and create an autoscaling group. To do this, on the bottom left, click on "Autoscaling Group," and we will create an autoscaling group. 
+
+![](/img/05/36.png)
+
+I will call this one "Demo ASG," and we need to `create a launch template`.
+
+![](/img/05/37_.png)
+
+Currently, we have none, so let's `create a launch template`. I will call this one "Demo Launch Template." This template is used to tell the ASG how to create EC2 instances within it. This will look very similar to what we have when we create EC2 instances.
+
+![](/img/05/38.png)
+
+As you can see here, I can choose, for example, a QuickStart Amazon Linux for getting Amazon Linux 2 as the base of my EC2 instance. Then, we have an instance type that we can include, for example, T2 micro. 
+
+
+![](/img/05/39.png)
+
+
+For TPM, we will `not include it in the launch template`, or we can just say that we don't need one, so this is good enough. For subnets, we will not include this in the launch template.
+
+For the security group, we can select a security group that's already existing. For example, my "Launch Wizard 1." Under `Advanced Network Configuration`, we don't need to do anything. 
+
+For EBS volumes and storage, we don't need to do anything. 
+
+![](/img/05/40.png)
+
+And then, for advanced details, we want these instances to start with some user data, so we scroll all the way down, and here we copy and paste the user data.
+
+![](/img/05/41.png)
+
+```sh
+#!/bin/bash
+# Use this for your user data (script from top to bottom)
+# install httpd (Linux 2 version)
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "<h1>Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
+```
+
+Okay, let's create this launch template. As you can see, thanks to this launch template, we launched EC2 instances just like before. 
+
+Let's refresh this, and then click on the `demo launch template` of version 1. Here, it describes what is going to happen, the type of instances we're going to have, the security groups, and so on. 
+
+![](/img/05/42.png)
+
+Let's click on "Next."
+
+
+Next, we need to choose where to launch these instances. We have our VPC, and then we can select multiple availability zones and subnets, so we select three of them. For instance type requirements, we can use the one from the launch template, or, if we wanted to, override them. But we don't need to, 
+
+![](/img/05/43.png)
+
+so let's click on "Next."
+
+Next, we have **load balancers**, so we want to attach to an `existing load balancer`, and it's going to be an application balancer. To do this, we're going to tell the ASG, the autoscaling group, that every instance created should be registered within my `demo target group for my ALB`. Therefore, all these instances will be under the target group, and the load balancer will be able to direct traffic to them. 
+
+![](/img/05/44.png)
+
+You can disregard VPC Lattice Integration as it is out scope for the exam. Leave it as "No VPC Lattice service"
+
+![](/img/05/45.png)
+
+The health check can be EC2 and also ALB, so we're good, and then we can click on "Next."
+
+Now comes the scaling of the autoscaling group. The desired capacity is how many instances you want at any time. For example, we want two EC2 instances to have some sort of load balancing. The minimum capacity is one, meaning we want at least one instance, and the maximum is four, meaning we want at most four instances. But the desired capacity is what matters most, because this is the actual capacity that we're going to get.
+
+![](/img/05/46.png)
+
+Next, we want scaling policies. This is a bit advanced, but you can, of course, set scaling policies on an autoscaling group—that's the whole point of it—which allows you to resize your ASG on demand. If there's much more demand, then it's going to have more instances. If there's less demand, then it will have fewer instances. So, click on "Next."
+
+![](/img/05/47.png)
+
+Next.
+
+![](/img/05/48.png)
+
+Next.
+
+
+
+Next, we don't need notifications, and we don't need tags. We can review everything, it looks good, and let's `create our autoscaling group`.
+
+Now, our autoscaling group is being created, and as you can see, the state is updating capacity because we have zero instances in our ASG, but we want two. I can click on it to get a bit more detail.
+
+![](/img/05/49.png)
+
+Let's go under "Activity," and here we have two activity histories, meaning we are launching two new EC2 instances because the desired capacity went from zero to two. 
+
+![](/img/05/50.png)
+
+If we look under the "Instance Management" tab, you can see now that two EC2 instances are in the pending state.
+
+![](/img/05/51.png)
+
+If I go under EC2 and look at my EC2 instances in that UI, we also see that two instances are running, and these have been created by my autoscaling group.
+
+![](/img/05/52.png)
+
+The benefit is that now they are fully managed by my autoscaling group. Let's go see, for example, in my target group as well. If I go to my target group on the left-hand side and look at my DemoTG ALB right here, scroll down, you can see that we now have two total targets, and these are the targets created by our autoscaling group. Thanks to the integration we've defined between the autoscaling group and the load balancer, we can automatically register these new EC2 instances as targets in our target group.
+
+![](/img/05/53.png)
+
+To speed up the check from unhealthy to healthy, you can go under "Health Checks" of your target group, and here you can edit the settings.
+
+![](/img/05/55.png)
+
+Under "Advanced Settings," you can set the healthy threshold to 2, and the interval to 5 seconds. This will speed things up. Of course, the timeout needs to be set to 2 seconds, which is less than the interval itself. 
+
+![](/img/05/56.png)
+
+Let's save our changes. If I go back to my targets and refresh, both of my instances are now healthy. We just made the health checks happen faster and more frequently.
+
+
+Now that both instances are healthy, if I go under my load balancer right here and look at the DNS name and open it in a new tab, I get a response ("Hello World.") from both of my instances. 
+
+![](/img/05/57.png)
+
+
+![](/img/05/32.png)
+
+This is cool because these two instances were created by the autoscaling group. Now that we have an autoscaling group, we can do some interesting things. For example, let's take one of these instances and terminate it. I'll click on it, and under the instance itself, I'll go to "Instance State" and then "Terminate Instance." Now it's been successfully terminated.
+
+![](/img/05/58.png)
+
+![](/img/05/59.png)
+
+What's going to happen is that because this instance is being shut down and terminated, 
+
+![](/img/05/60.png)
+
+my autoscaling group is going to detect that one of these instances is no longer in service. 
+
+![](/img/05/61.png)
+
+Since we have an autoscaling group with a desired capacity of two instances, a new instance should automatically appear. 
+
+![](/img/05/62.png)
+
+Let's observe this behavior by checking the activity history. As you can see, in progress is the termination of the instance. An instance was taken out of service because it was terminated, and then we have a new activity saying, "An instance was launched in response to an unhealthy instance needing to be replaced." This is very cool because the autoscaling group can automatically detect unhealthy instances and create a new one for replacement.
+
+![](/img/05/63.png)
+
+
+If we look now, there's one instance in the pending state (which is being started), one instance being terminated, and one instance in service. 
+
+![](/img/05/64.png)
+
+This is the power of autoscaling groups. Of course, you can take it to the next level by defining scaling policies to automatically increase or decrease the desired capacity over time based on load and other factors. 
+
+![](/img/05/65.png)
+
+But for now, you've seen the basics and major features of autoscaling groups. 
+
+![](/img/05/66.png)
+
+
+You can play around by editing the desired capacity yourself—set it to one, for example, 
+
+![](/img/05/67.png)
+
+to terminate instances and only keep one, or set it to four and see the autoscaling group create multiple instances that will be registered with your load balancer. As a result, traffic will be distributed between four instances.
+
+#### Auto Scaling Groups – Scaling Strategies
+
+* Manual Scaling: Update the size of an ASG manually 
+* Dynamic Scaling: Respond to changing demand
+  * Simple / Step Scaling
+    * When a CloudWatch alarm is triggered (example CPU > 70%), then add 2 units 
+    * When a CloudWatch alarm is triggered (example CPU < 30%), then remove 1
+  * Target Tracking Scaling
+    * Example: I want the average ASG CPU to stay at around 40%
+  * Scheduled Scaling
+    * Anticipate a scaling based on known usage patterns
+    * Example: increase the min. capacity to 10 at 5 pm on Fridays
+
+--
+
+Okay, so we've seen how autoscaling works, but let's take a look at the different scaling strategies for your autoscaling groups.
+
+The first strategy is manual scaling, where we update the size of our autoscaling group manually. This is when, for example, we change the desired capacity from 1 to 2, or from 2 to 1.
+
+Next, we can define some scaling strategies, such as dynamic scaling, to respond automatically to changing demand. Within dynamic scaling, we have different types of scaling policies. The first is simple and step scaling, which involves setting up triggers based on CloudWatch alarms. For example, you might say, "Whenever the average CPU utilization of all my EC2 instances goes over 70% for 5 minutes, add 2 units of capacity to my ASG." Or, "Whenever the CPU utilization is less than 30% for 10 minutes, remove 1 unit of capacity from my ASG." This approach is called simple or step scaling because we define the trigger and then specify how many units to add or remove.
+
+Then, we have target tracking scaling, which is a straightforward way of defining a scaling policy. For example, you could say, "I want the average CPU utilization of all the EC2 instances in my ASG to stay at around 40%." The ASG will then scale automatically to maintain that target average of 40%.
+
+We also have scheduled scaling, which is useful when you know changes will happen ahead of time. This allows you to anticipate scaling based on known usage patterns. For instance, you might say, "We know that on Friday at 5 p.m., people are going to do sports betting before the soccer game. So please increase the minimum capacity to 10 EC2 instances in my ASG at 5 p.m. on Friday." This is an example of scheduled scaling.
+
+![](/img/05/54.png)
+
+The final type of scaling, which is likely to appear in exams, is called predictive scaling. This uses machine learning to predict future traffic ahead of time. Algorithms analyze past traffic patterns to forecast what will happen to traffic in the future. The idea is that predictive scaling will forecast the load, such as daily peaks that last for three hours, and automatically provision the right number of EC2 instances in advance to match that predicted period. This is particularly helpful when you have time-based patterns and want a hands-off scaling strategy powered by machine learning.
+
+
+#### Section cleanup
+
+So we are going to clean up our instances and related resources. If you try to go into instances and terminate these two instances directly, this will not work. If you do so, the autoscaling group will simply recreate them. **The correct strategy** is to go under the autoscaling group and delete the autoscaling group altogether. To do this, just type "delete" to confirm the deletion.
+
+![](/img/05/68.png)
+
+Next, we need to delete the load balancer. Find your application balancer, select "Action," and then "Delete." Confirm the deletion, and you're good to go.
+
+![](/img/05/69.png)
+
+You may be wondering, "Should I delete my target group?" Well, you don't have to because the target group doesn't cost you any money, and it will be empty because we have deleted the autoscaling group and the load balancer.
+
+![](/img/05/69.png)
+
+Once the ASG is gone, the EC2 instances that your ASG manages will also be gone, so everything will be fully cleaned up. This will ensure that we remain within the free tier for this course. I hope you found this helpful, and I will see you in the next lecture.
+
+
+#### ELB & ASG – Summary
+
+* **High Availability vs Scalability** (vertical and horizontal) vs Elasticity vs Agility in the Cloud
+* **Elastic Load Balancers (ELB)**
+  * Distribute traffic across backend EC2 instances, can be Multi-AZ
+  * Supports health checks
+  * 4 types: Classic (old), Application (HTTP – L7), Network (TCP – L4), Gateway (L3)
+* **Auto Scaling Groups (ASG)**
+  * Implement Elasticity for your application, across multiple AZ
+  * Scale EC2 instances based on the demand on your system, replace unhealthy
+  * Integrated with the ELB
+
+--
+
+Okay, let's summarize the section on the ELB and ASG.
+
+First, we discussed the concept of high availability, scalability (both vertical and horizontal), elasticity, and agility in the cloud. It's important to understand which concept corresponds to which features. For example:
+
+* High availability means having your applications distributed across multiple availability zones.
+* Vertical scalability refers to increasing the size of an instance.
+* Horizontal scalability involves increasing the number of instances.
+* Elasticity is the ability to scale up and down based on demand.
+* Agility is a cloud concept that enables you to work faster because you can create and delete resources very quickly.
+
+Next, we covered load balancers (ELB), which allow us to distribute traffic across backend EC2 instances that can be spread out across multiple availability zones. They support health checks to ensure that the backend EC2 instances are healthy. We have four types of load balancers:
+
+1. Classic Load Balancer: This is the older, now retired version.
+2. Application Load Balancer (ALB): Designed for HTTP/HTTPS workloads at Layer 7.
+3. Network Load Balancer (NLB): Provides high-performance load balancing at Layer 4 (TCP).
+4. Gateway Load Balancer (GLB): Operates at Layer 3, routing network traffic through virtual appliances.
+
+We also discussed autoscaling groups (ASG), which enable us to implement elasticity for our applications, spreading the load across multiple availability zones and scaling according to demand. ASGs can automatically scale EC2 instances based on the system's demand and replace unhealthy instances. There's a tight integration between the ASG and ELB, making them an excellent combination. Together, they help us achieve high availability, scalability, elasticity, and agility in the cloud.
+
+
