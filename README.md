@@ -52,6 +52,9 @@
     - [Auto Scaling Groups – Scaling Strategies](#auto-scaling-groups--scaling-strategies)
     - [Section cleanup](#section-cleanup-1)
     - [ELB \& ASG – Summary](#elb--asg--summary)
+  - [Amazon S3](#amazon-s3)
+    - [S3 Hands On](#s3-hands-on)
+    - [S3 Security: Bucket Policy](#s3-security-bucket-policy)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -2899,4 +2902,81 @@ Next, we covered load balancers (ELB), which allow us to distribute traffic acro
 
 We also discussed autoscaling groups (ASG), which enable us to implement elasticity for our applications, spreading the load across multiple availability zones and scaling according to demand. ASGs can automatically scale EC2 instances based on the system's demand and replace unhealthy instances. There's a tight integration between the ASG and ELB, making them an excellent combination. Together, they help us achieve high availability, scalability, elasticity, and agility in the cloud.
 
+
+### Amazon S3
+
+* Amazon S3 is one of the main building blocks of AWS
+* It’s advertised as ”infinitely scaling” storage
+* Many websites use Amazon S3 as a backbone
+* Many AWS services use Amazon S3 as an integration as well • We’ll have a step-by-step approach to S3
+
+
+This section is very important because Amazon S3 is one of the main building blocks of AWS. It's advertised as infinitely scalable storage, and in fact, much of the web relies on Amazon S3. For example, many websites use Amazon S3 as a backbone, and numerous AWS services integrate with Amazon S3 as well.
+
+In this section, we'll take a step-by-step approach to learning the main features of Amazon S3. 
+
+**Amazon S3 Use cases**
+
+![](/img/06/01.png)
+
+There are many use cases for Amazon S3 because, at its core, it's storage. Amazon S3 is used for backup and storage—this could be for files, disks, and so on. It's also used for disaster recovery purposes; for example, you can move your data to another region so that if one region goes down, your data is still backed up somewhere else. It's also used for archival purposes, allowing you to archive files in Amazon S3 and retrieve them later at a much lower cost. Amazon S3 is useful for hybrid cloud storage, where you have storage on-premises but want to expand it into the cloud.
+
+Additionally, S3 can be used to host applications, media (such as video files and images), and even serve as a data lake for big data analytics. It’s also used for delivering software updates, hosting static websites, and more. Two noteworthy use cases are that NASDAQ stores seven years of data in the S3 Glacier service (Amazon S3's archival service), and Cisco runs analytics on this data to gain business insights.
+
+
+
+**Amazon S3 - Buckets**
+
+![](/img/06/02.png)
+
+Amazon S3 stores files in what are called "buckets," which can be seen as top-level directories. The files within these S3 buckets are called "objects." These buckets are created in your AWS account and must have globally unique names. This means that the name must be unique not only across all the regions in your account but also across all AWS accounts worldwide. In essence, it's the only thing that must be globally unique in AWS. While the names of buckets are globally unique, the buckets themselves are region-specific. So, while S3 appears to be a global service, buckets are actually created in specific AWS regions—a common mistake for beginners.
+
+There is a naming convention for S3 buckets. While you don't need to memorize it, it's good to know that bucket names must have no uppercase letters, no underscores, must be between three and sixty-three characters long, must not be an IP address, must start with a lowercase letter or number, and there are some restrictions on prefixes. Essentially, if you use lowercase letters, numbers, and hyphens, you should be fine.
+
+**Amazon S3 - Objects**
+
+![](/img/06/03.png)
+
+Now, let's talk about objects. These objects are files, and they have what's called a key. An Amazon S3 object key is the full path of your file. For example, if your bucket is named "mybucket," and your file is named "myfile.txt," the key would be "myfile.txt." If you want to nest it in folders, the key would include the full path, such as "myfolder1/anotherfolder/myfile.txt." Thus, the key is composed of a prefix (the folders) and the object name (the file name). It’s important to note that Amazon S3 doesn’t have a concept of directories per se, though the console UI may make it seem otherwise. In reality, everything in Amazon S3 is a key, which can be a very long name containing slashes, with keys being made up of a prefix and an object name.
+
+**Amazon S3 – Objects (cont.)**
+
+Now, what are these objects? Well, the objects are the content, or the body, of the files. You can upload any file to Amazon S3, and the maximum object size is 5 terabytes, or 5,000 gigabytes. If you need to upload a very large file—greater than 5 gigabytes—you must use the multi-part upload feature to upload the file in several parts. For example, for a file of 5 terabytes, you would need to upload at least 1,000 parts of 5 gigabytes each.
+
+Objects can also have metadata, which are key-value pairs that can be set by the system or by the user to provide additional information about the file. Objects can be tagged with up to 10 unique key-value pairs, which is useful for security and lifecycle management. Additionally, if versioning is enabled, objects will have a version ID.
+
+* Object values are the content of the body:
+  * Max. Object Size is 5TB (5000GB)
+  * If uploading more than 5GB, must use “multi-part upload”
+* Metadata (list of text key / value pairs – system or user metadata)
+* Tags (Unicode key / value pair – up to 10) – useful for security / lifecycle • Version ID (if versioning is enabled)
+
+#### S3 Hands On
+
+
+
+
+#### S3 Security: Bucket Policy
+
+**Amazon S3 – Security**
+
+![](/img/06/04.png)
+
+**S3 Bucket Policies**
+
+![](/img/06/05.png)
+
+**Example: Public Access - Use Bucket Policy**
+
+**Example: User Access to S3 – IAM permissions**
+
+
+**Example: EC2 instance access - Use IAM Roles**
+
+
+**Advanced: Cross-Account Access – Use Bucket Policy**
+
+**Bucket settings for Block Public Access**
+
+![](/img/06/06.png)
 
