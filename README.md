@@ -55,6 +55,15 @@
   - [Amazon S3](#amazon-s3)
     - [S3 Hands On](#s3-hands-on)
     - [S3 Security: Bucket Policy](#s3-security-bucket-policy)
+    - [S3 Security: Bucket Policy Hands On](#s3-security-bucket-policy-hands-on)
+    - [Amazon S3 – Static Website Hosting](#amazon-s3--static-website-hosting)
+    - [S3 Website Hands On](#s3-website-hands-on)
+    - [S3 - Versioning Overview](#s3---versioning-overview)
+    - [S3 - Versioning Hands on](#s3---versioning-hands-on)
+    - [Amazon S3 – Replication](#amazon-s3--replication)
+    - [S3 Replication Hands On](#s3-replication-hands-on)
+    - [S3 Storage Classes Overview](#s3-storage-classes-overview)
+    - [Encryptation](#encryptation)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -2953,7 +2962,92 @@ Objects can also have metadata, which are key-value pairs that can be set by the
 
 #### S3 Hands On
 
+So here I am in Amazon S3, and I'm going to go ahead and create the bucket. 
 
+![](/img/06/07.png)
+
+Now, you'll notice here that there's a region selected, which is your obstacle called U01, and this is because I have the region selection in here. So choose the region where you want to put your bucket, and you'll see that Amazon S3 still has a view over all your buckets across all regions. Now, there's a bucket type that you may or may not see, so if you're in a region where it's available, you will see General Purpose or Directory New, and over time, there will be more regions. If you don't see it in your region, this is fine. The option to choose, if you see it, is General Purpose, and if you don't see this option, it will be automatically set to General Purpose. So don't touch anything, and don't feel alarmed if you don't see these options. Directory buckets are for a specific type of use case that is not covered in the exam, so I will not be talking about it. So if you see the screen, choose General Purpose. If you don't see the screen, everything is fine. Do not worry.
+
+![](/img/06/08.png)
+
+Okay, so you choose a region, and next, you choose a bucket name. If you enter a bucket name that is already taken, for example, "test," and you try to create your bucket, you're going to get an error saying that a bucket with the same name already exists. So your bucket name must be unique across all regions and all accounts ever created in AWS. This is why I name my bucket with something very, very personal. For example, it could be `alexjust-demo-s3` and I usually add the version number V5 because I've created this video many, many times as the interface changes. So `alexjust-demo-s3` should be available, and it should have no errors. But if someone has already taken it, then I will need to change the name.
+
+
+Okay, next, for object ownership, right now, you have ACL disabled. This is recommended as it is a security setting. Don't worry about it; we'll leave it as the default. Now, for blocking public access to this bucket, we will again leave this enabled to block all public access, as we want maximum security for our bucket, so only we can upload files to it. Next, for bucket versioning, we want to disable bucket versioning right now, and we'll see later on how to enable it. No tags are needed, and for default encryption, I'm going to use server-side encryption with Amazon S3 Managed Key, so all my objects are going to be encrypted, and then we'll choose the first option. We'll talk about encryption later on. And the key, I will enable it. So, as you can see, we'll leave all the settings as default. The only thing we have set is the bucket name. So I'll go ahead and create my bucket.
+
+![](/img/06/09.png)
+
+![](/img/06/10.png)
+
+And now it has been successfully created. You will see all your buckets here in this UI. If you have directory enabled, you will also see directory buckets. Right now, I have none, but your general-purpose buckets are here. If you just created this bucket during this course, you should see one bucket. ( I have 33 because I've been using my account quite a lot. This will be my bucket for all eight of those regions—not just the one you're in right now, but all regions. As you can see, I have buckets in Ireland, London, US East 1, Frankfurt, and so on. All your buckets are going to be displayed here. You can also do a quick search.) 
+
+For example, type "Alexjust Demo," and here is my bucket. So I'm going to click on it and take a look inside. Now, in my bucket, I would like to start uploading objects because currently, I have zero objects. So let's click on Upload, 
+
+![](/img/06/12.png)
+
+and then we can add files. Navigate to your code, go into the S3 folder, and you will find a copy.jpg file. Choose this copy.jpg file. As you can see, it's an image file with a size of 100 kilobytes. The destination is `S3 alexjust Demo`, which is my bucket. Let's upload this file. We're done, so I can close this on the right-hand side. 
+
+![](/img/06/13.png)
+
+Now, back in my S3 bucket, I can see that the copy.jpg file is listed under my objects. 
+
+![](/img/06/14.png)
+
+I can click on it to view more details about the file.
+
+![](/img/06/15.png)
+
+Now that we are on the Objects page, we can look at various properties like where it was uploaded, its size, type, and there’s an object URL here. We’ll be exploring that in a moment. So how do we do this? We want to open this object to see if we can view it. We can do this because we’ve uploaded it to our Amazon S3 bucket. Therefore, I'm going to click on Open.
+
+![](/img/06/16.png)
+
+When I do, as you can see, I can view my copy.jpg file. This is the file I uploaded, and it’s now on the internet. Awesome, right? 
+
+![](/img/06/17.png)
+
+But if I go back to the overview and click on this object URL here, copy it, paste it, and hit enter, I get an "Access Denied" message. This "Access Denied" message indicates that I cannot access my object using what’s called the public URL.
+
+![](/img/06/18.png)
+
+![](/img/06/19.png)
+
+So you can see here, this public URL does not work, but the other URL does. So what’s the difference? Well, if you look at it, the beginning of the URL is exactly the same, but the rest is a very complicated and long string because it's called an S3 pre-signed URL. 
+
+`https://alexjust-demo-s3.s3.us-east-1.amazonaws.com/coffee.jpg?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2Vc1f1`
+
+Why? Because this URL contains a signature that verifies that I am the one who made the request, and it includes my credentials. Since my credentials are encoded in this URL, Amazon S3 says, “alexjust is allowed to view his own object,” and therefore, it displays it. So the public URL does not work, but this pre-signed URL with my credentials does, and obviously, this URL is only for me. We’ll see later on how to make that object public so that the public URL will work as well.
+
+
+![](/img/06/20.png)
+
+Let’s go back to our bucket, the alex-demo-s3, where I have one object. I can create a folder, 
+
+![](/img/06/21.png)
+
+![](/img/06/22.png)
+
+and the folder name might be "images." So we scroll down and create the folder. Now, I have the images folder in my bucket. I can click on it and `upload` a file. 
+
+![](/img/06/23.png)
+
+This time, I will upload the beach.jpg file. As you can see, the destination is my images folder within my S3 bucket. Let’s upload this.  
+
+![](/img/06/24.png)
+
+As you can see now, we have the beach.jpg object within the images folder.
+
+![](/img/06/25.png)
+
+If I go one level up, we can see the folder here. 
+
+![](/img/06/26.png)
+
+This looks just like the cloud storage services you’re familiar with, such as Google Drive or Dropbox. Here, we have something very similar in terms of the user experience on Amazon S3. Of course, I can go to the images folder and delete it entirely. This will delete everything within the folder. To delete things, I simply type "permanently delete" into the text input, delete my objects, and I’m good to go.
+
+![](/img/06/27.png)
+
+
+So that’s it for this lecture. We’ve seen how to upload objects to Amazon S3, open them in two different ways, create folders, delete folders, and more. I hope you enjoyed it, and I’ll see you in the next lecture.
 
 
 #### S3 Security: Bucket Policy
@@ -2962,21 +3056,451 @@ Objects can also have metadata, which are key-value pairs that can be set by the
 
 ![](/img/06/04.png)
 
+So now let's talk about Amazon S3 security. The first part is user-based. As a user, you can have IAM policies attached to you, and this IAM policy will authorize which API calls should be allowed for a specific IAM user. You can also have resource-based security, which is a newer feature. We can use what's called S3 bucket policies, which are bucket-wide rules that you can assign directly from the S3 console. This allows, for example, a specific user to access your bucket or a user from another account (cross-account access) to access your S3 bucket. This is also how we'll make our S3 buckets public, as I will show you in a minute.
+
+Next, you have the Object Access Control List (ACL), which verifies the grant's security, and they can be disabled. If you want to go to the bucket level, you can have a bucket ACL, which is much less common and can also be disabled. The most common way to secure an Amazon S3 bucket is by using bucket policies.
+
+So in which situation can an IAM principal access an S3 object? Well, if the IAM permissions allow it or if the resource policies allow it and there is no explicit deny on the action, then the IAM principal can access the S3 object via the specified API call. We'll look at these use cases in a minute.
+
+Finally, another way to secure Amazon S3 is to encrypt the objects using encryption keys.
+
 **S3 Bucket Policies**
 
 ![](/img/06/05.png)
 
+So, what does an S3 bucket policy actually look like? This is the focus of S3 security for us. These are JSON-based policies, and they look like this: a JSON document that is quite easy to read.
+
+The first thing is that you have a resource block, and the resource tells the policy which buckets and objects this policy applies to. Here, we can see that this policy applies to every object within the example bucket. This is what the asterisk () is for. Next, we have the effects: allow or deny. What do we allow or deny? We either allow or deny actions—specific API calls. In this example, the action we allow is GetObject. This allows anyone, thanks to the principal. The principal represents the account or user to which the policy applies. The principal is set to asterisk () here, which means we allow anyone to get objects from my example bucket, and the asterisk (*) indicates that this applies to any object within the bucket. Therefore, this S3 bucket policy is setting public read access on all objects inside my bucket.
+
+So we can use an S3 bucket policy to grant public access to the bucket, as shown on the right-hand side, to enforce encryption on uploaded objects, or to grant access to another account. Let's look at a specific situation.
+
 **Example: Public Access - Use Bucket Policy**
+
+![](/img/06/28.png)
+
+Here is a bucket policy for public access: we have a user on the World Wide Web—a website visitor—who wants to access files within our S3 bucket. We'll attach an S3 bucket policy that allows public access, similar to the one you've seen earlier. Once this bucket policy is attached to the S3 bucket, anyone can access any object within it, as we'll see in the hands-on session.
 
 **Example: User Access to S3 – IAM permissions**
 
+![](/img/06/29.png)
+
+Another scenario is if you have a user within your account (an IAM user) who wants to access Amazon S3. We can assign IAM permissions to that user through a policy, and if the policy allows access to the S3 bucket, the user can access it. If we have an EC2 instance and want to give it access to the S3 bucket, we cannot use IAM users; instead, we need to use IAM roles. 
 
 **Example: EC2 instance access - Use IAM Roles**
 
+![](/img/06/30.png)
+
+So we create an EC2 instance role with the correct IAM permissions, and that EC2 instance will be able to access the Amazon S3 bucket.
 
 **Advanced: Cross-Account Access – Use Bucket Policy**
+
+![](/img/06/31.png)
+
+In more advanced scenarios, if we want to allow cross-account access, we must use a bucket policy. We have an IAM user in another AWS account, and we create an S3 bucket policy that allows cross-account access for that specific IAM user. This allows the IAM user to make API calls to our S3 buckets.
 
 **Bucket settings for Block Public Access**
 
 ![](/img/06/06.png)
+
+Other security settings to be aware of include the bucket settings for blocking public access. These settings were enabled when we created the bucket, and they were introduced by AWS as an extra layer of security to prevent company data leaks. Even if you set an S3 bucket policy to make it public, if these settings are enabled, the bucket will never be public. This is to prevent data leaks. If you know your bucket should never be public, leave these settings enabled for an extra level of security against incorrect S3 bucket policies. If you know that none of your S3 buckets should ever be public, you can set this at the account level.
+
+
+#### S3 Security: Bucket Policy Hands On
+
+So let's go ahead and create a bucket policy so that we can access this coffee.jpg file from the public URL. 
+
+![](/img/06/19.png)
+
+To do this, let's go under the Permissions tab. 
+
+![](/img/06/31.png)
+
+The first thing we need to do is allow public access in the bucket settings because right now, everything is locked. We’ll edit this, 
+
+![](/img/06/32.png)
+
+untick the box to allow public access, and confirm the action. Keep in mind that this is something you should only do if you know you want to set a public bucket policy. This is a risky action, so we acknowledge the warning and proceed. If you store real company data in an S3 bucket and make it public, it could result in data leaks, which can be very harmful.
+
+![](/img/06/33.png)
+
+
+Now, under Permissions Overview, we see that objects can be public. That's the first step. Next, we scroll down to the Bucket Policy section. Currently, there is no policy, so we need to create one to make our entire bucket public. 
+
+![](/img/06/34.png)
+
+The first thing you can do is look at the policy examples in the AWS documentation, which shows a variety of use cases and corresponding bucket policies. However, in our case, we're going to use the Policy Generator.
+
+![](/img/06/35.png)
+
+Here is the AWS Policy Generator, and we’ll create an S3 bucket policy. Let's select the correct type: "Allow." The principal will be an asterisk (), meaning we want to allow anyone to access the Amazon S3 service. Since we want to allow reading objects in our bucket, we'll select the "GetObject" action. 
+
+![](/img/06/36.png)
+
+The Amazon Resource Name (ARN) must be the bucket name followed by a slash (/) and an asterisk ().
+
+Let's find the ARN for our S3 bucket. Go back to your S3 bucket and copy the ARN. Paste it into the Amazon Resource Name field, then add a slash (/) followed by an asterisk (). This syntax indicates that the GetObject action applies to all objects within your bucket. The slash represents the objects within your bucket, and the asterisk () represents any object.
+
+![](/img/06/37.png)
+
+---
+
+![](/img/06/38.png)
+
+Next, we add this statement and generate the policy.
+
+![](/img/06/39.png)
+
+---
+
+![](/img/06/40.png)
+
+The generated policy is what we’ll copy into the bucket policy editor. This policy is a public S3 policy, meaning that GetObject is allowed for anyone on any object in this bucket. That's it. Let’s save these changes. If there are any extra spaces or formatting issues, make sure to fix them. Perfect, now save these changes.
+
+![](/img/06/41.png)
+
+We can see that our bucket policy has been properly applied. 
+
+![](/img/06/42.png)
+
+Now, let's go back to our object, coffee.jpg, 
+
+![](/img/06/43.png)
+
+find the object URL, copy it, and enter it into the browser. 
+
+![](/img/06/44.png)
+
+As you can see, my coffee image is now fully visible and public, along with any other objects in my Amazon S3 bucket.
+
+![](/img/06/45.png)
+
+So that's it for this lecture. We've covered bucket policies, the policy generator, and how to make our image public. I hope you found this helpful, and I will see you in the next lecture.
+
+
+#### Amazon S3 – Static Website Hosting
+
+**Amazon S3 – Static Website Hosting**
+
+![](/img/06/46.png)
+
+So now let's talk about how Amazon S3 can be used to create a static website. S3 can host static websites and make them accessible on the internet. The website URL will depend on the AWS region where you create the bucket, and it will follow a format similar to one of these two: either with a dash or a dot. The difference is minor, and you don't really need to remember it, but it's good to know.
+
+We have an S3 bucket, and it will contain files—maybe HTML files, maybe images—and we're going to configure it to be compatible with hosting a website. Once configured, the corresponding URL will be used by users to access our S3 bucket as a website. However, this will not work unless we have public read access enabled on our S3 bucket. This is why, in the previous lecture, we learned about S3 bucket policies.
+
+If you encounter a 403 Forbidden error after enabling your S3 bucket for public reads, it means that your bucket is not public. In that case, you'll need to attach an S3 bucket policy that allows public access.
+
+That's it for this short lecture. Now, let's move on to the hands-on practice to implement this.
+
+
+#### S3 Website Hands On
+
+Let's enable our bucket to function as a website. First, I'm going to upload one more file here—beach.jpg—into our bucket. Okay, that's done. Now we have two files in our bucket.
+
+![](/img/06/48.png)
+
+Next, let's go to Properties, scroll down, and all the way at the bottom, you'll find the Static website hosting section. Click on Edit, and here we will enable static website hosting. 
+
+![](/img/06/49.png)
+
+![](/img/06/50.png)
+
+We want to host a static website, so we need to specify an index document. I'll enter index.html, which we'll need to upload. This will be the default or home page of the website.
+
+As you can see, there's a little warning sign saying that to enable this as a website endpoint, you must make all your content publicly readable. We've already handled this in the previous lecture, so we're good to go. 
+
+![](/img/06/51.png)
+
+Let's **`save changes`** these settings.
+
+![](/img/06/52.png)
+
+Now, go back to our objects. The only thing missing here is the index.html file. I'll upload it by clicking on Add files, selecting index.html, and then uploading it. Once that's done, close the upload window, and the file is created.
+
+![](/img/06/53.png)
+
+![](/img/06/54.png)
+
+Now, let's return to `Properties`, 
+
+scroll down to the Static website hosting section, and you'll see that we now have a Bucket website endpoint. 
+
+![](/img/06/55.png)
+
+Copy this URL, paste it into your browser, and you should see "I love coffee, lol" along with the coffee.jpg file. 
+
+![](/img/06/56.png)
+
+This means everything is working properly. This is our index.html file. If I right-click on the coffee image and open it in a new tab, you'll see the public URL of our coffee.jpg file.
+
+http://alexjust-demo-s3.s3-website-us-east-1.amazonaws.com/coffee.jpg
+
+http://alexjust-demo-s3.s3-website-us-east-1.amazonaws.com/beach.jpg
+
+Everything is functioning as expected. If you wanted to display the beach image instead of the coffee image, you could access the beach.jpg file directly by navigating to its URL. This shows that everything is set up correctly—our S3 bucket is enabled for static website hosting, and thanks to the public S3 bucket policy, we can access all these files.
+
+#### S3 - Versioning Overview
+
+![](/img/06/47.png)
+
+Now let's talk about versioning in Amazon S3. We've already seen how to create a website, but it would be useful to update it safely. You can enable versioning for your files in Amazon S3, and this is a setting that must be enabled at the bucket level.
+
+Let's say we have a bucket, and versioning is enabled. Whenever a user uploads a file, a version of that file is created under the selected key. If the same key is used again to upload a new version of the file (essentially overwriting the file), instead of replacing it, Amazon S3 will create a version 2, then version 3, and so on. Therefore, it is considered best practice to enable versioning for your buckets.
+
+Why is versioning important? Well, the first reason is that it protects against unintended deletions. For example, if you delete a file version, you are actually just adding a delete marker, which means you can restore the previous versions if needed. Additionally, you can easily roll back to a previous version—if you need to revert to a file from two days ago, you can simply restore that version.
+
+There are a few things to keep in mind when using versioning. First, any file that existed before versioning was enabled will have a version ID of null. Also, if you suspend versioning, it does not delete the previous versions, making it a safe operation.
+
+Okay, now let's go to the console and take a look at how we can use versioning.
+
+#### S3 - Versioning Hands on
+
+Now let's experiment with S3 versioning. First, we need to go into the Properties of our bucket. Under the Bucket Versioning setting, we’ll click on Edit and enable it. 
+
+![](/img/06/57.png)
+
+Once enabled, any files we overwrite will just create new versions within our bucket.
+
+![](/img/06/58.png)
+
+
+Let’s go to our objects > `Properties`. Suppose we want to update our website. Let’s find the `website URL—it's right here`. 
+
+![](/img/06/54.png)
+
+![](/img/06/55.png)
+
+Currently, it says "I love coffee," but let's change it to "I really love coffee." 
+
+![](/img/06/56.png)
+
+So, let's go back to our file, edit it to say "I really love coffee," save the changes, and re-upload this file.
+
+```sh
+# index.html
+<html>
+    <head>
+        <title>My First Webpage</title>
+    </head>
+    <body>
+        <h1>I REALLYlove coffee</h1>
+        <p>Hello world!</p>
+    </body>
+
+    <img src="coffee.jpg" width=500/>
+</html>
+
+```
+
+We'll add the updated index.html file, and now we have the updated content. After uploading, it’s successful, and the file is overwritten. If I refresh the website, I now see "I really love coffee."
+
+![](/img/06/53.png)
+
+![](/img/06/55.png)
+
+![](/img/06/59.png)
+
+
+But what happened in the background? Well, if we go here, and we have this toggle "show versions," we're going to show the actual version ID with the files. And so we can notice a few things. Number one, the files that we uploaded before, such as beach.jpg and coffee.jpg, have a null version ID. That's because they were uploaded before we enabled versioning. But this file index.html, as you can see, has two versions. One has a version ID of null, which is the file we uploaded before enabling versioning, but the file we uploaded just now has a version ID. Therefore, by updating this file and uploading it into our S3 buckets, we have created a new version ID. This is something you can only see if you enable this toggle.
+
+![](/img/06/60.png)
+
+Thanks to versioning, what we can do now is actually roll back our page. So we have "I really love coffee," but we want to go back to "I love coffee." How do we do this? Well, we click on this specific version ID. 
+
+![](/img/06/61.png)
+
+Okay, so make sure that "show versions" is enabled, and then we're going to **`delete`**. 
+
+Here, we have to delete a specific version ID of our object. When we delete a specific version ID of our object, it's called a permanent delete. It's a destructive operation and cannot be undone. So if we're sure, we type "permanently delete" in the text box and click on "delete objects." 
+
+![](/img/06/62.png)
+
+Now we can go back. As you can see, we are back with the previous state of our bucket. Therefore, if I refresh this page, I just get "I love coffee."
+
+![](/img/06/56.png)
+
+But what if we disable "show versions"? Now we just have our objects. I'm going to take this coffee.jpg file and delete it itself. 
+
+![](/img/06/63.png)
+
+This time, we don't actually delete the underlying version ID; we delete by adding a delete marker. It doesn't actually delete the underlying object, as we'll see. So let's just type "delete" this time—it's not "permanently delete," it's just "delete"—and we delete the object. 
+
+![](/img/06/64.png)
+
+
+Perfect. Now, if we look at it within our bucket, it looks like the coffee.jpg file is gone. 
+
+![](/img/06/65.png)
+
+But if we click on "show versions," we see that we have a delete marker on our coffee.jpg file with this version ID. The previous coffee.jpg file is still in our bucket, but it's being overwritten, at least right now, from a version perspective, by a delete marker.
+
+![](/img/06/66.png)
+
+Back on our webpage, if I refresh this page, and I refresh it by forcing a refresh with Command + Shift + R, we see that the image is not available. 
+
+![](/img/06/67.png)
+
+How do we get this image back? If I try to, for example, open this image in a new tab, it doesn't work—I get a 404, not found. 
+
+![](/img/06/68.png)
+
+To restore the previous object, I can click on this delete marker and actually delete the delete marker. 
+
+![](/img/06/69.png)
+
+I will permanently delete this delete marker. The effect of that is that it will restore the previous version of my object, which is the one from before. 
+
+![](/img/06/70.png)
+
+![](/img/06/71.png)
+
+So back on my webpage, if I refresh it now, we can see that the coffee.jpg file is back.
+
+![](/img/06/56.png)
+
+
+
+#### Amazon S3 – Replication 
+
+**Amazon S3 – Replication (CRR & SRR)**
+
+![](/img/06/72.png)
+
+Now let's talk about Amazon S3 replication, which comes in two flavors: CRR (Cross-Region Replication) and SRR (Same-Region Replication). The idea is that we have an S3 bucket in one region and a target S3 bucket in another region, and we want to set up asynchronous replication between these two buckets. To do this, we first need to enable versioning in both the source and destination buckets. If we're doing CRR (Cross-Region Replication), the two regions will be different. If we're doing SRR (Same-Region Replication), the two regions will be the same.
+
+It's also possible to have these buckets in different AWS accounts. The copying process happens asynchronously, meaning the replication mechanism works behind the scenes, in the background. To make replication work, you must provide the proper IAM permissions to the S3 service so that it has the permission to read from and write to the specified buckets.
+
+There are several use cases for replication. For cross-region replication (CRR), this can be helpful for compliance, providing lower latency access to your data by storing it in another region, or replicating data across accounts. For same-region replication (SRR), it can be very useful for aggregating logs across multiple S3 buckets or performing live replication between a production and test account, allowing you to maintain your own test environment.
+
+#### S3 Replication Hands On
+
+So let's practice replication on Amazon S3. For this, we're going to create a new bucket. I'll call it s3-alexjust-bucket-origin-v2, and I will set it in the region that I want. For example, EU-S1. This will be my origin bucket, and the data will be replicated from this bucket to another bucket. The first thing to do, of course, is to enable versioning because replication only works if versioning is enabled. 
+
+![](/img/06/73.png)
+
+![](/img/06/74.png)
+
+So we'll create this bucket and then open it in a new tab. Next, we will create a second bucket, which will be my `target bucket`. I will name it S3-alexjust-Bucket-Replica-V2. This time, the region can be either the same, for example, if you want to do same-region replication, or something completely different. For instance, if you want the US, you could choose US-East-1 to replicate from Europe to the US.
+
+![](/img/06/80.png)
+
+![](/img/06/81.png)
+
+![](/img/06/82.png)
+
+Okay, so let's go ahead and enable bucket versioning on the target bucket. Now we're good to go. We have our primary bucket and our secondary bucket. What I'm going to do next is upload a file to the origin bucket. So I will add a file of my beach, for example, Beach.jpeg. Okay, this is done, and we can close this. 
+
+![](/img/06/83.png)
+
+So now this bucket has one file, but of course, it’s not going to replicate it yet because we haven't set up replication.
+
+So let’s go ahead and do that. In the origin bucket, go under Management, scroll down, and you'll see that there are currently zero replication rules. Let’s go ahead and create our first replication rule. 
+
+![](/img/06/77.png)
+
+I’ll call this one `DemoReplicationRule`. Perfect. We’ll set it as `enabled`. 
+
+![](/img/06/78.png)
+
+For the source bucket, we’ll leave it as is, and in terms of rule scope, we’ll apply it to all objects in the bucket.
+
+For the destination, we can specify a bucket in this account or another account. So I need to actually enter the name. We'll take this bucket right here, copy, and paste it. 
+
+![](/img/06/84.png)
+
+As you can see, the destination region was identified as US East 1. Therefore, this is a cross-region replication. Now for IAM Role, we need to create a new role for this. There is an option for that. We can also look at some settings, but for now, it doesn’t really matter. Let’s just save this.
+
+![](/img/06/85.png)
+
+Let’s just save this.
+
+![](/img/06/86.png)
+
+We get a prompt right here that asks if we want to replicate existing objects. It turns out that when you enable replication, it only replicates objects from the moment you set it, so for newer uploads. If you want to replicate previous objects from the source to the destination bucket, you can use something called a batch operation, an S3 batch operation, to do so. You would need to say, "Yes, replicate existing objects," but this is separate from the replication feature itself. Therefore, I'm going to say, "No, do not replicate existing objects," and we're good to go.
+
+![](/img/06/87.png)
+
+Now let's have a look. We have the management with a replication role that is ready. Now, I’m going to check my replica bucket.
+
+![](/img/06/88.png)
+
+Of course, if I refresh now, we’ll see that the objects haven't been replicated. So what you should do is upload a new file. For example, upload the coffee.jpg file. Upload it, and we're done. Here is the coffee.jpg file. Let's show the version. This is coffee.jpg, and the version is `qUHlNA7_8ahhFCzNm1PRWmOEhtpnZVu0`. Okay, perfect.
+
+![](/img/06/89.png)
+
+Now if we go to my target bucket and refresh, it’s going to take maybe five seconds. It took about 10 seconds on the first replication, but we can see that my coffee.jpg has been added to my replica bucket. If I show the versions, we can see that the version ID of my coffee.jpg is the exact same as that of the origin bucket. So the version IDs are replicated, which is great. 
+
+![](/img/06/90.png)
+
+If I want to import the beach.jpg, I would need to upload a new version of the file. So let's upload beach.jpg again. Now that this has been uploaded, we can look at the version. There is a new version right here, DK2, of my beach.jpg file. 
+
+![](/img/06/91.png)
+
+If I go here and refresh, it takes a bit of time, but as you can see, you can find the DK2 version of that file. So that’s it for S3 bucket replication. 
+
+![](/img/06/92.png)
+
+
+#### S3 Storage Classes Overview
+
+**S3 Storage Classes**
+
+* Amazon S3 Standard - General Purpose
+* Amazon S3 Standard-Infrequent Access (IA) • Amazon S3 One Zone-Infrequent Access
+* Amazon S3 Glacier Instant Retrieval
+* Amazon S3 Glacier Flexible Retrieval
+* Amazon S3 Glacier Deep Archive
+* Amazon S3 Intelligent Tiering
+* Amazon S3 Express One Zone
+
+Can move between classes manually or using S3 Lifecycle configurations
+
+
+**S3 Durability and Availability**
+
+![](/img/06/93.png)
+
+
+**S3 Standard – General Purpose**
+
+* 99.99% Availability
+* Used for frequently accessed data
+* Low latency and high throughput
+* Sustain 2 concurrent facility failures
+
+
+* Use Cases: Big Data analytics, mobile & gaming applications, content distribution...
+
+**S3 Storage Classes – Infrequent Access**
+
+![](/img/06/94.png)
+
+
+**Amazon S3 Glacier Storage Classes**
+
+![](/img/06/95.png)
+
+**S3 Intelligent-Tiering**
+
+* Small monthly monitoring and auto-tiering fee
+* Moves objects automatically between Access Tiers based on usage • There are no retrieval charges in S3 Intelligent-Tiering
+
+* Frequent Access tier (automatic): default tier
+* Infrequent Access tier (automatic): objects not accessed for 30 days
+* Archive Instant Access tier (automatic): objects not accessed for 90 days • Archive Access tier (optional): configurable from 90 days to 700+ days • Deep Archive Access tier (optional): config. from 180 days to 700+ days
+
+**S3 Storage Classes Comparison**
+
+https://aws.amazon.com/s3/storage-classes/
+
+![](/img/06/96.png)
+
+
+**S3 Storage Classes – Price Comparison Example: us-east-1**
+
+https://aws.amazon.com/s3/pricing/
+
+![](/img/06/97.png)
+
+
+#### Encryptation
 
