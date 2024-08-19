@@ -63,7 +63,12 @@
     - [Amazon S3 – Replication](#amazon-s3--replication)
     - [S3 Replication Hands On](#s3-replication-hands-on)
     - [S3 Storage Classes Overview](#s3-storage-classes-overview)
+    - [S3 Storage Classes Hands On](#s3-storage-classes-hands-on)
     - [Encryptation](#encryptation)
+    - [IAM Access Analyzer for S3](#iam-access-analyzer-for-s3)
+    - [Shared Responsibility Model for S3](#shared-responsibility-model-for-s3)
+    - [AWS Snow Family](#aws-snow-family)
+    - [AWS Snow Family Hands On](#aws-snow-family-hands-on)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -3442,6 +3447,7 @@ If I go here and refresh, it takes a bit of time, but as you can see, you can fi
 
 #### S3 Storage Classes Overview
 
+
 **S3 Storage Classes**
 
 * Amazon S3 Standard - General Purpose
@@ -3454,11 +3460,15 @@ If I go here and refresh, it takes a bit of time, but as you can see, you can fi
 
 Can move between classes manually or using S3 Lifecycle configurations
 
+We'll learn about all these classes in depth in this lecture, but you need to know them for the exam. When you create an object in Amazon S3, you can choose its storage class. You can also modify its storage class manually, or, as we'll see, you can use Amazon S3 lifecycle configurations to move objects automatically between these storage classes.
 
 **S3 Durability and Availability**
 
 ![](/img/06/93.png)
 
+So first, before we go into the classes, let's define the concepts of durability and availability. Durability represents how often an object might be lost by Amazon S3. Amazon S3 has very high durability, known as "11 nines"—that's 99.999999999% durability. This means that, on average, if you store 10 million objects on Amazon S3, you can expect to lose a single object once every 10,000 years. It's quite durable, and this durability is the same across all storage classes in Amazon S3.
+
+Availability, on the other hand, represents how readily a service is available. This depends on the storage class. For example, S3 Standard has 99.99% availability. This means that the service might not be available for about 53 minutes a year, meaning you might encounter some errors when interacting with the service. You need to take this into account when developing your applications.
 
 **S3 Standard – General Purpose**
 
@@ -3467,17 +3477,29 @@ Can move between classes manually or using S3 Lifecycle configurations
 * Low latency and high throughput
 * Sustain 2 concurrent facility failures
 
-
 * Use Cases: Big Data analytics, mobile & gaming applications, content distribution...
+
+S3 Standard has 99.99% availability and is used for frequently accessed data. This is the default storage class and has low latency and high throughput. It can sustain two concurrent facility failures on AWS's side. The use cases for it include big data analytics, mobile and gaming applications, and content distribution.
 
 **S3 Storage Classes – Infrequent Access**
 
 ![](/img/06/94.png)
 
+Next, we have S3 Infrequent Access (IA). This storage class is for data that, as the name suggests, is accessed less frequently but requires rapid access when needed. It costs less than S3 Standard but has a retrieval cost. S3 Standard IA has 99.9% availability, which is slightly less available than S3 Standard, and the use cases include disaster recovery and backups.
+
+Amazon S3 One Zone Infrequent Access (One Zone IA) also has high durability, but only within a single Availability Zone (AZ). If the AZ is destroyed, the data will be lost. Its availability is 99.5%, so it’s even lower. The use cases for S3 One Zone IA include storing secondary copies of backups, perhaps of on-premises data or data that can be recreated.
 
 **Amazon S3 Glacier Storage Classes**
 
 ![](/img/06/95.png)
+
+Next, we have the Glacier storage classes. Glacier, as the name suggests, is for very cold storage, meaning it’s low-cost object storage meant for archiving and backup. The pricing model involves paying for storage plus a retrieval cost. There are three classes within Glacier:
+
+* Amazon S3 Glacier Instant Retrieval: Provides retrieval in milliseconds, ideal for data that’s accessed once a quarter. The minimum storage duration is 90 days. This is for backups where you need to access the data instantly.
+
+* Glacier Flexible Retrieval: Previously known as Amazon S3 Glacier. This class offers three retrieval options—expedited (1 to 5 minutes), standard (3 to 5 hours), and bulk (5 to 12 hours). The minimum storage duration is also 90 days. This is for scenarios where you can wait a bit longer to retrieve your data.
+
+* Glacier Deep Archive: This is for long-term storage, with retrieval times of 12 hours (standard) and 48 hours (bulk). It offers the lowest cost, and the minimum storage duration is 180 days. This is for data you are willing to wait a significant amount of time to retrieve.
 
 **S3 Intelligent-Tiering**
 
@@ -3488,7 +3510,11 @@ Can move between classes manually or using S3 Lifecycle configurations
 * Infrequent Access tier (automatic): objects not accessed for 30 days
 * Archive Instant Access tier (automatic): objects not accessed for 90 days • Archive Access tier (optional): configurable from 90 days to 700+ days • Deep Archive Access tier (optional): config. from 180 days to 700+ days
 
+S3 Intelligent Tiering is ideal if you want to let Amazon S3 manage the movement of your objects between different storage classes based on how often they’re accessed.
+
 **S3 Storage Classes Comparison**
+
+When comparing all these storage classes, you don't need to memorize all the details, but it’s important to understand the general concepts. All classes have 11 nines of durability, but the availability decreases as you move to lower-cost classes. Make sure to understand the minimum storage duration and retrieval costs associated with each class.
 
 https://aws.amazon.com/s3/storage-classes/
 
@@ -3502,5 +3528,156 @@ https://aws.amazon.com/s3/pricing/
 ![](/img/06/97.png)
 
 
+#### S3 Storage Classes Hands On
+
+Let's create a new bucket in S3 and call it `s3-storage-classes-demo-2025-v1`. I'll choose any region and go ahead and create this bucket. 
+
+![](/img/06/98.png)
+
+Now, back in my bucket, I can upload an object by clicking on Add Files. I'll choose my coffee.jpg file, and let's have a look at the options. We can examine the `properties` of that object, 
+
+![](/img/06/100.png)
+
+
+and under Storage Class, I see a wide range of storage classes available for AWS objects.
+
+We have S3 Standard, which is the default storage class, and we can see columns like Designed for Availability Zones (AZs), Minimum Storage Duration, Minimum Billable Object Size, and Monitoring and Auto-Tiering Fees. Let's review each of them:
+
+![](/img/06/99.png)
+
+Standard: This is the default storage class for frequently accessed data.
+Intelligent Tiering: Useful if you're unsure about your data access patterns and want AWS to automatically move data between different tiers based on usage.
+Standard IA: For infrequently accessed data that still requires low latency.
+One Zone IA: Stores data in a single AZ, which means you can risk losing the object if the AZ is destroyed, but it’s suitable if you can easily recreate the data.
+Glacier Instant Retrieval: Offers retrieval within milliseconds, useful for archival data that needs occasional access.
+Glacier Flexible Retrieval: Provides different retrieval speeds depending on your needs (expedited, standard, and bulk).
+Glacier Deep Archive: The lowest-cost option for long-term storage, where you don’t need frequent access to the data.
+It also mentions Reduced Redundancy Storage (RRS), which is a deprecated storage class, so I didn’t cover it in the course.
+
+Now, let's select Standard IA for this example and create the object there. We’re going to proceed with the upload and then...
+
+Back in our bucket, you can see that the object now has the storage class Standard IA, 
+
+![](/img/06/101.png)
+
+as indicated here. However, if I want to, I can also change the storage class. To do this, I can go into Properties, 
+
+![](/img/06/102.png)
+
+![](/img/06/103.png)
+
+scroll down, and actually edit the storage class to something different. For example, I can move it to One Zone IA, in which case this object will be stored in a single AZ only. Let's save these changes, 
+
+![](/img/06/104.png)
+
+and now my object has successfully been updated; therefore, the storage class has changed. If we scroll down, we can see that the object is now in One Zone IA.
+
+![](/img/06/105.png)
+
+Once again, you can edit it and choose, for example, Glacier Instant Retrieval, which would archive the object, or you could select Intelligent Tiering, allowing AWS to automatically set the object to the correct tier based on access patterns, and so on. As you can see, there’s a lot of flexibility and power in using storage classes.
+
+Finally, I want to show you how we can automate the process of moving objects between different storage classes. Let’s go back into our bucket, and under `Management`, you can create `Lifecycle Rules`. 
+
+![](/img/06/106.png)
+
+You can create a rule—let’s call this one DemoRule—and apply it to all objects in the bucket. 
+
+![](/img/06/107.png)
+
+Then you can specify how to move current versions between storage classes. For instance, you could set the object to move to Standard IA after 30 days, then to Intelligent Tiering after 60 days, and finally to Glacier Flexible Retrieval after 180 days, and so on. 
+
+![](/img/06/109.png)
+
+You can review all the transitions you’ve configured. This allows you to automate the movement of objects between different storage classes. So you get some transitions, and in here, you can review all the transitions you have done. So it is possible for you to automate moving objects between tiers, okay?
+
+we've seen everything we need to know about storage classes. I hope you liked it.
+
+
 #### Encryptation
+
+![](/img/06/110.png)
+
+So you might have one question on S3 encryption at the exam. So here is a high-level review of what that means. The first one is server-side encryption. So it is by default whenever you create a bucket or whenever you upload an object, it will be encrypted. What is server-side encryption? Well, the user uploads an object into Amazon S3, and then that object, when it arrives in the bucket, is going to be encrypted by Amazon S3 for security purposes. The idea is that the server is doing the encryption, and therefore we call this server-side encryption. On the opposite, we have client-side encryption. This is when the user will actually take the file, will encrypt it before uploading it, so the lock is done by the user, and then put it in the bucket. And that's called client-side encryption. And both models exist in AWS, but by default you should know that server-side encryption is always on. 
+
+#### IAM Access Analyzer for S3
+
+
+* Ensures that only intended people have access to your S3 buckets
+* Example: publicly accessible bucket, bucket shared with other AWS account... 
+* Evaluates S3 Bucket Policies, S3 ACLs, S3 Access Point Policies
+* Powered by IAM Access Analyzer
+  
+![](/img/06/111.png)
+
+This is just a quick lecture on IAM Access Analyzer for Amazon S3, which might appear in a question on the exam. So, what is this? IAM Access Analyzer is a monitoring feature for your Amazon S3 buckets that ensures only the intended people have access to your S3 buckets.
+
+How does it work? IAM Access Analyzer analyzes your bucket policies, S3 ACLs, S3 access point policies, and so on. It identifies which buckets are publicly accessible, which buckets have been shared with other AWS accounts, and more. The purpose is for you to review these findings and determine whether the access is normal and expected, or if it represents a potential security issue—such as an unintended sharing of a bucket. If you find something concerning, you can take appropriate action.
+
+This feature is powered by IAM Access Analyzer, which helps you identify resources in your account that are shared with other entities.
+
+
+#### Shared Responsibility Model for S3
+
+![](/img/06/112.png)
+
+As always, it’s important to understand the shared responsibility model for Amazon S3. AWS is responsible for all the infrastructure, which includes aspects specific to S3 such as durability, availability, and the ability to sustain concurrent losses of two facilities. AWS also handles their own internal configuration, vulnerability analysis, and compliance validation within their infrastructure.
+
+As a user of Amazon S3, you are responsible for correctly setting up S3 versioning to protect your data, configuring the appropriate S3 bucket policies to ensure data protection within your bucket, and setting up replication if needed. Logging and monitoring are optional, so you must enable these features yourself if desired. Additionally, you are responsible for selecting the most cost-effective storage class for your needs. Finally, if you want to encrypt your data in your Amazon S3 bucket, that’s also up to you to configure.
+
+This clearly delineates the responsibilities between AWS and you, the user, in the context of the Amazon S3 service.
+
+#### AWS Snow Family
+
+* Highly-secure, portable devices to collect and process data at the
+edge, and migrate data into and out of AWS
+
+![](/img/06/113.png)
+
+So now let's talk about the AWS Snow family. This is a highly secure, portable device used to collect and process data at the edge and migrate data in and out of AWS. There are two types of devices in the Snow family: the Snowcone and the Snowball Edge. Each has its own specific use cases.
+
+The Snowcone is a small device designed for very small storage capacity. It offers between 8 to 14 terabytes of storage. Typically, you would use the Snowcone when you have a small migration size of up to a few terabytes.
+
+The Snowball Edge is a much larger device. It comes in different configurations, with storage capacities ranging from 80 terabytes to 210 terabytes. You would use the Snowball Edge when you have a larger migration size, possibly up to petabytes, by ordering multiple Snowball Edge devices.
+
+**Data Migrations with AWS Snow Family**
+
+![](/img/06/114.png)
+
+Now, why do we need Snowball devices in the first place? Let's talk about data migrations. Here’s an example: transferring data over a network. If you need to transfer 100 terabytes of data and have a 1 gigabit per second connection, it would take you approximately 12 days. This would also consume a significant amount of your company's bandwidth. When you have limited connectivity, limited bandwidth, high network costs, or issues with connection stability, using the AWS Snow family is advantageous because these are offline devices that allow you to perform data migrations without relying on your network.
+
+The general rule of thumb is: if it would take you more than a week to transfer your data over the network, you should consider using Snowball devices.
+
+**Diagrams**
+
+![](/img/06/115.png)
+
+So how does the process work? Normally, you would directly upload data from your client to Amazon S3. However, with the Snow family, you would order a Snowball or Snowcone device, which gets delivered to you. You load the data onto the device, ship it back to AWS, and AWS will then import the data directly into your Amazon S3 bucket. This is an offline data transfer process.
+
+**Snow Family – Usage Process**
+
+Here’s a step-by-step overview of the process:
+
+1. Request Snowball devices from the AWS console for delivery
+2. Install the snowball client / AWS OpsHub on your servers
+3. Connect the snowball to your servers and copy files using the client
+4. Ship back the device when you’re done (goes to the right AWS facility)
+5. Data will be loaded into an S3 bucket
+6. Snowball is completely wiped
+
+This is how the data migration process works, but Snow devices also support edge computing.
+
+**What is Edge Computing?**
+
+![](/img/06/116.png)
+
+So, what is edge computing? Edge computing involves processing data at the location where it is created, which could be on a truck, a ship, or at a remote mining station, where internet access may be limited or nonexistent and computing power is not readily available.
+
+In such cases, you can order a Snowcone or a Snowball Edge device for edge computing tasks. The Snowcone comes with a simple CPU and minimal memory, but it can still be helpful for certain use cases. On the other hand, the Snowball Edge has more powerful options, such as a compute-optimized instance dedicated to heavy processing tasks or a storage-optimized version that also offers processing power.
+
+With a Snowball Edge device, you can even run EC2 instances or Lambda functions directly on the device at the edge. Use cases for edge computing include preprocessing data where it is created, performing machine learning tasks at the data's origin, or transcoding media before it is shipped back to AWS.
+
+So, in summary, we've covered Snowcone and Snowball Edge devices. They are used for both data migration and edge computing. I hope you found this information useful, and I will see you in the next lecture.
+
+#### AWS Snow Family Hands On
+
 
