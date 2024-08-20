@@ -75,6 +75,26 @@
   - [Databases Section](#databases-section)
     - [RDS \& Aurora Overview](#rds--aurora-overview)
     - [RDS Hands On](#rds-hands-on)
+    - [RDS Deployments options](#rds-deployments-options)
+    - [ElastiCache Overview](#elasticache-overview)
+    - [DynamoDB Overview](#dynamodb-overview)
+    - [DynamoDB Hands On](#dynamodb-hands-on)
+    - [DynamoDB – Global Tables](#dynamodb--global-tables)
+    - [Redshift Overview](#redshift-overview)
+    - [Amazon EMR Overview](#amazon-emr-overview)
+    - [Amazon Athena](#amazon-athena)
+    - [Amazon QuickSight](#amazon-quicksight)
+    - [DocumentDB ~mongoDB](#documentdb-mongodb)
+    - [Amazon Neptune](#amazon-neptune)
+    - [Amazon Timestream](#amazon-timestream)
+    - [Amazon QLDB](#amazon-qldb)
+    - [Amazon Managed Blockchain](#amazon-managed-blockchain)
+    - [AWS Glue](#aws-glue)
+    - [DMS – Database Migration Service](#dms--database-migration-service)
+    - [Databases \& Analytics Summary in AWS](#databases--analytics-summary-in-aws)
+  - [Other Compute Services](#other-compute-services)
+    - [What is Docker?](#what-is-docker)
+    - [ECS, Fargate \& ECR Overview](#ecs-fargate--ecr-overview)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -3972,3 +3992,407 @@ As you can see, the RDS free tier is available for 12 months, offering a full mo
 It took a few minutes, but now my database is created. 
 
 ![](/img/07/15.png)
+
+
+We can see some summary information, like where it is launched (e.g., EU-Central-1A). We also get information about the endpoint, which is used to connect to the database, including the endpoint address and port. We can look at the `VPC security group` that has been created for my RDS instance. 
+
+![](/img/07/16.png)
+
+We can look at the `VPC security group` that has been created for my RDS instance. 
+
+![](/img/07/17.png)
+
+As you can see, on `VPC security group` there is an inbound rule on port 3306...
+
+![](/img/07/18.png)
+
+... allowing connections to my MySQL database instance.
+
+![](/img/07/19.png)
+
+If we look at monitoring, since this is a managed service, we get insights into CPU utilization, which is great. We can see the benefits of managed services with built-in monitoring, configuration, settings, and more, which make it easier to manage a database in the cloud.
+
+![](/img/07/20.png)
+
+Another feature is taking a snapshot of your database. A snapshot allows you to restore the database later or create a new one from the snapshot. Let's create a demo snapshot. However, we can’t take the snapshot immediately because my database is still in the backup stage. So, we'll wait for it to become available.
+
+Now that my database is available, we'll go back to "Actions" and select "Take Snapshot." Enter a name for the snapshot and create it. The snapshot is now being created. Once it's done, we can do a few things with it. For example, we can restore the snapshot to create a new database  from this snapshot.  The reason for doing this could be to create a larger database, a copy database, or to apply different settings to your database. Restoring a snapshot would be the way to do this. 
+
+![](/img/07/21.png)
+
+
+![](/img/07/22.png)
+
+
+![](/img/07/23.png)
+
+
+Other things you can do with your snapshot include copying it to a different region, which would be extremely helpful for disaster recovery. 
+
+![](/img/07/24.png)
+
+You can also share snapshots with other accounts, allowing them to restore their database directly from your snapshots—another very handy feature.
+
+So my snapshot is now available. And what I can do is do action restore snapshots. And this will allow me to create a new database out of this snapshot. And the reason why I would do so is that, for example, you wanted to create a bigger database, or create a copy database, and so on, or create different settings for your database.
+
+![](/img/07/25.png)
+
+Then restoring a snapshot would be the way to do it.
+
+![](/img/07/26.png)
+
+Other things you can do with your snapshot is to copy it. So you can copy to a different region. And it would be extremely helpful if you wanted to restore the database into another region of the database, for example, for disaster recovery.
+
+![](/img/07/27.png)
+
+![](/img/07/28.png)
+
+So you get another very handy feature. Another thing you can do is share the snapshots. And sharing the snapshots allows you to share with other accounts so they can restore their database directly from your snapshots.
+
+![](/img/07/29.png)
+
+![](/img/07/30.png)
+
+So you get another very handy feature. 
+
+So that's it for RDS. Just a quick overview. So again, we've created a database, and we've created a snapshot out of it, and we saw different options. So you can see managed services really have a good impact on how you use the cloud, and they really speed it up for you to make sure that you don't manage too much infrastructure. 
+
+So just to finish this handout, let's delete these snapshots. And then we're also going to delete this database by doing action delete. And then you don't want to create a final snapshot. You do not want to retain automated backups. And you acknowledge that everything will be deleted. Then you type delete me, and you're good to go. So that's it for this lecture. I hope you liked it, and I will see you in the next lecture.
+
+![](/img/07/31.png)
+
+
+![](/img/07/32.png)
+
+
+#### RDS Deployments options
+
+**RDS Deployments: Read Replicas, Multi-AZ**
+
+![](/img/07/33.png)
+
+So when you deploy RDS databases, you need to understand there are multiple architectural choices you need to make. That you can make, actually. So, the first is to use RDS read replicas. So let's take the example of your application that reads from your main RDS database. Let's say that now you need to scale the read workload so you get more and more applications that need to read more and more data from RDS. The way you can do it is by creating read replicas. So that means that there's going to be some copies, some replicas of your RDS database that are going to be created. And it's going to allow your applications to read from this read replica also. And therefore, you're distributing the reads to many different RDS databases. So you can create up to 15 read replicas. As you can see in this example, I have two read replicas on top of my main RDS database. And my applications can read from all of them. Now, when it comes to writing data, writing data is only done to the main database. So your applications still have to write to the only one central RDS database. So read replicas are used to scale reads. 
+
+Now we have multi-AZ. So this is helpful when you have to have failover in case of an AZ outage. So, in case an availability zone crashes. And this gives you high availability. So in this example, your applications still read and write from the same main RDS database. But we are going to set up a replication across AZ, so in another different availability zone. And this is going to be a failover database. And this is why it's called multi-AZ because it's a different AZ. Now, in case the main RDS database crashes for whatever reason, because maybe there's an issue with it or maybe because the AZ is having problems, then RDS will trigger a failover. And then your application will failover to the failover database in a different AZ. So in this case, data is only read and written to the main database. The failover DB is passive. It's not accessible until there is an issue with the main database. And you can only have one other availability zone as a failover AZ. 
+
+**RDS Deployments: Multi-Region**
+
+![](/img/07/34.png)
+
+The last kind of deployment you can do is called multi-region. So this is for read-replicas. But this time, instead of being in the same region, they are across different regions. So let's take an example. We have EUS1 for RDS database. And we're going to create a read-replica in EUS2. And so applications in EUS2 can read locally from this read-replica. But anytime this application needs to write data, the writes need to happen across regions. And so they need to write the data to EUS1. Same if you were to have also another region in AP Southeast 2, so in Australia. You'd have the same concept. So why would you want a multi-region type of deployment? Well, number one, because you want to set up a disaster recovery strategy in case of a region issue. So if EUS1 is having a regional issue, then you have a backup in either EUS2 or AP Southeast 2. And this is why it's a disaster recovery strategy. And also, as you can see, our applications that are in different regions get better performance because they read from a local database, so they have less latency. But finally, when you do this, you need to understand that because you are replicating data across regions, then there is going to be a replication cost associated with the network transfers of data between regions. So that's it for RDS deployments. The scenarios that will be proposed to you at the exam will make it clear what deployment to choose. So I hope you liked it, and I will see you in the next lecture.
+
+#### ElastiCache Overview
+
+* The same way RDS is to get managed Relational Databases...
+* ElastiCache is to get managed Redis or Memcached
+* Caches are in-memor y databases with high performance, low latency
+* Helps reduce load off databases for read intensive workloads
+* AWS takes care of OS maintenance / patching, optimizations, setup, configuration, monitoring, failure recovery and backups
+
+
+So now let's talk about a second type of database you will see on AWS, which is Amazon ElastiCache. In the same way that you use RDS to get managed relational databases, you use ElastiCache to get a managed Redis or Memcached database. These caches are in-memory databases that offer high performance and low latency. So, anytime you see something on the exam that requires an in-memory database, you should think of ElastiCache.
+
+ElastiCache is helpful in reducing the load on databases with intensive workloads. For example, if you have an RDS database and you're performing the same queries repeatedly, this can put significant pressure on the RDS database. Instead, you could use a cache to reduce this pressure by ensuring that the queries are directed to the in-memory database through ElastiCache.
+
+Because ElastiCache is a managed service, AWS takes care of all the operating system maintenance, patching, optimizations, setup, configuration, monitoring, failure recovery, and backups. You don't need to know much about caches for the exam, but you do need to remember that it's an in-memory database.
+
+
+**ElastiCache Solution Architecture - Cache**
+
+![](/img/07/35.png)
+
+The solution architecture for using a cache looks like this: Your load balancer will route traffic to your EC2 instances, possibly in an ASG (Auto Scaling Group). These instances will be reading and writing data from your Amazon RDS database, which is slower. If possible, they will cache some values into an Amazon ElastiCache database. This is very fast because it’s in-memory. With ElastiCache, the pressure is taken off the main RDS database and placed onto the ElastiCache database. That's the whole idea behind caching—you want to store the queries somewhere else so they are readily available, easily accessible, and can relieve pressure from the main database.
+
+That’s it. That’s all you need to know going into the exam. I will see you in the next lecture. Now, let's talk about DynamoDB.
+
+#### DynamoDB Overview
+
+
+* Fully Managed Highly available with replication across 3 AZ
+* NoSQL database - not a relational database
+* Scales to massive workloads, distributed “serverless” database
+* Millions of requests per seconds, trillions of row, 100s of TB of storage • Fast and consistent in performance
+* Single-digit millisecond latency – low latency retrieval
+* Integrated with IAM for security, authorization and administration
+* Low cost and auto scaling capabilities
+* Standard & Infrequent Access (IA) Table Class
+
+
+DynamoDB is a fully managed, highly available database with replication across three availability zones. It is part of the NoSQL database family, so it's not a relational database. DynamoDB is one of the flagship products of AWS. It scales to handle massive workloads and is a distributed, serverless database. This means that we don't provision any servers like we do with RDS or Elasticsearch, where we need to select an instance type. With DynamoDB, we don’t need to do that, which is why it's called a serverless database—though, of course, there are still servers in the backend, we just don't see them.
+
+DynamoDB is great because it scales to millions of requests per second, handles trillions of rows, and supports hundreds of terabytes of storage. It offers fast and consistent performance, so anytime you need single-digit millisecond latency with low latency retrieval, DynamoDB is the database for you. You should look for keywords in your exam such as "serverless" and "low latency," for example, "single-digit millisecond latency." It is integrated with IAM for security, authorization, and administration, has low cost and auto-scaling capabilities, and offers a standard and Infrequent Access (IA) table class based on how you want to classify your data for cost savings.
+
+**DynamoDB – type of data**
+
+https://aws.amazon.com/nosql/key-value/
+
+![](/img/07/36.png)
+
+So, the question you might have is: what type of data goes into DynamoDB? Well, it's a key-value database, and the data structure looks like this: You have a primary key, which is made up of one or two columns (a partition key and a sort key), and then attributes on the right-hand side, where you can define your own columns for your data. Finally, all the items are stored row by row, and this is how a DynamoDB table works. Very simple, but remember, it’s a NoSQL database, providing low latency retrieval of data and access to a serverless database.
+
+**DynamoDB Accelerator - DAX**
+
+![](/img/07/37.png)
+
+
+Next, we have DynamoDB Accelerator, also called DAX in the exam (both terms can be used). DAX is a fully managed in-memory cache specifically for DynamoDB. This cache is not like ElastiCache. For example, if your application wants to access DynamoDB tables and you want to cache the most frequently read objects, you would use DAX as a cache in between. DAX is designed specifically for DynamoDB, so you wouldn’t use ElastiCache in this case, even though you could. DAX is really well integrated with DynamoDB and provides a 10x performance improvement. Instead of single-digit millisecond latency queries, you’ll experience microsecond latency when accessing your DynamoDB tables. DAX is fully secure, highly scalable, and highly available. The difference with ElastiCache, again, is that DAX is fully integrated with DynamoDB, whereas ElastiCache can be used with other types of databases to provide caching capabilities.
+
+#### DynamoDB Hands On
+
+![](/img/07/38.png)
+
+Let's go ahead and practice DynamoDB a little bit. 
+
+I'm going to create a table, and I'll call this one DemoTable. In DynamoDB, you need to specify a partition key, so we'll specify userID. Sort keys are definitely out of scope for the exam, so let's focus on just the partition key. For the settings in DynamoDB, again, I'm going to leave them as the default settings. You don't need to know the details of how it works. 
+
+![](/img/07/39.png)
+
+Then you scroll down and click on `Create Table`. Our table is now being created.
+
+What I want you to notice is that we are creating a table without creating a database. The database already exists—it's serverless. We don't need to provision servers. We just need to say, "Hey, I want this table. Please create it for me," and we don't care how it's being run. That's the whole power of DynamoDB and the whole power of serverless services.
+
+![](/img/07/40.png)
+
+Now that the table is ready, we can click on `Explore table items` 
+
+![](/img/07/41.png)
+
+and practice a little bit by inserting some data into this table. Currently, zero items are returned because I haven't created anything yet, but we can create an item in DynamoDB. 
+
+![](/img/07/42.png)
+
+For userID, I can enter 1234, so that will be my user ID. We can set the first name to Alex and the last name to Just. Then, finally, we can add a number. DynamoDB supports various data types for numbers. Let’s say my favorite number is 100. Click on Create Item, and here we go. 
+
+![](/img/07/43.png)
+
+My item was successfully added to DynamoDB. This is super easy. Once again, I did not have to specify any database—just my table, the item data, and so on. We didn't have to specify the schema; it was automatically inferred. Now we have four attributes, or columns.
+
+![](/img/07/44.png)
+
+
+Next, we can create a second item with userID 5678. Then, add a new string attribute for firstName, and this time, we’ll enter Alice. Click on Create Item. 
+
+![](/img/07/45.png)
+
+As we can see in this example, I didn’t specify a favorite number or last name for Alice. I just specified firstName as Alice, and it was still accepted by DynamoDB. It's a very flexible type of database and a very flexible way to insert data. These features and capabilities make DynamoDB really, really powerful.
+
+
+The difference between DynamoDB and, say, RDS, is that DynamoDB stores all the data within a single table, and there's no way to join it with another table, so it's not a relational database. That's why DynamoDB is considered a NoSQL database. The idea here is that we cannot link this table to another table, so we need to ensure that all relevant data is well-organized within our main DynamoDB table. This changes how you approach database design.
+
+But that's it for DynamoDB. This was a very quick hands-on example to give you an overview, but with DynamoDB, there's a lot more to learn. This is more the focus of the certified developer exam, not the certification exam, so for this example, this is enough. When you're done and ready, you can simply delete the table. You can delete all the CloudWatch alarms associated with it by typing "delete" in the confirmation box, and you'll be good to go.
+
+![](/img/07/46.png)
+
+
+#### DynamoDB – Global Tables
+
+Okay, so now let's talk about DynamoDB global tables. This is one feature you need to know about in DynamoDB. It's a way to make a DynamoDB table accessible with low latency—this is the key—in multiple regions.
+
+Let's take an example: we have a DynamoDB table in US East 1, and we set it up as a global table. At the basic level, our users can read and write to the DynamoDB table in Northern Virginia (US East 1). However, it is possible to set up replication for this global table. For instance, we can create a global table in Paris (EU West 3), and there will be two-way replication between these tables. This means that the same data is in US East 1 and EU West 3. Users close to the Paris region can access this global table with low latency in Paris.
+
+This setup can be expanded to 1, 2, or even 10 regions if desired. A global table is truly global, allowing users to read and write to the table in any specific region, with replication occurring between those regions. The fact that there is read-write access to any AWS region on this global table makes it an active-active replication setup because you can actively write to any region, and it will actively replicate to other regions.
+
+![](/img/07/47.png)
+
+#### Redshift Overview
+
+* Redshift is based on PostgreSQL, but it’s not used for OLTP
+* It’s OLAP – online analytical processing (analytics and data warehousing) • Load data once every hour, not every second
+* 10x better performance than other data warehouses, scale to PBs of data
+* Columnar storage of data (instead of row based)
+* Massively Parallel Query Execution (MPP), highly available
+* Pay as you go based on the instances provisioned
+* Has a SQL interface for performing the queries
+* BI tools such as AWS Quicksight or Tableau integrate with it
+
+Next type of database we have is Redshift. Redshift is a database that is based on PostgreSQL, but it's not used for OLTP. OLTP stands for Online Transaction Processing. That is what RDS was good for. Instead, Redshift is OLAP, or Online Analytical Processing, which is used to do analytics and data warehousing. So any time in the exam you're saying, the database needs to be a warehouse and to do analytics on it, Redshift is going to be your answer. With Redshift, you don't load the data continuously. You load it, for example, every hour. And the idea with Redshift is that it's really, really good at analyzing data and making some computations. So it boasts 10x better performance than other data warehouses and scales to petabytes of data. The data is stored in columns, so it's called a columnar storage of data instead of a row-based. So any time you see columnar, again, think Redshift. And it has something called the Massively Parallel Query Execution, MPP, engine to do these computations very, very quickly. It stays as you go based on the instances you have provisioned, and it has a SQL interface to perform the queries. It's also finally integrated with BI, so Business Intelligence Tools, which has QuickSight for Tableau, if you want to create dashboards on top of your data in your data warehouse. So that's it. Just a high-level overview. But a data warehouse is used to do some computation on your data sets and do some analytics, and possibly build some kind of visualizations for dashboards on it. And so for that use case, Redshift would be perfect. 
+
+**Redshift Serverless**
+
+• Automatically provisions and scales data warehouse underlying capacity
+• Run analytics workloads without managing data warehouse infrastructure • Pay only for what you use (save costs)
+• Use cases: Reporting, dashboarding applications, real-time analytics...
+
+![](/img/07/48.png)
+
+We now have a feature for Redshift called Redshift Serverless. And this allows you to run Redshift but not worry about scaling the data warehouse or provisioning it. AWS does it for us. That's why it's called Serverless. So the idea is that you're going to run your analytics workloads without managing data warehouse infrastructure, which is very handy. And you're only going to pay for what you use, which allows you to save on costs. So the use case would be to do reporting or dashboarding applications or real-time analytics, but again, without managing the underlying capacity and the infrastructure of your Redshift Serverless database. So how does that work? Well, you just enable Amazon Redshift Serverless on your account. Then you connect the Redshift query editor or any other tool to start writing your queries. And then automatically, Redshift Serverless is going to run these queries and provision and scale capacity based on the workload and the query itself. Finally, you only pay for compute and storage use during the analysis, which makes it a very cost-efficient option to running Redshift, and the exam can test you on it as well. Okay, so that's it for this lecture. I hope you liked it, and I will see you in the next lecture.
+
+#### Amazon EMR Overview
+
+• EMR stands for “Elastic MapReduce”
+• EMR helps creating Hadoop clusters (Big Data) to analyze and process vast amount of data
+• The clusters can be made of hundreds of EC2 instances
+• Also supports Apache Spark, HBase, Presto, Flink...
+• EMR takes care of all the provisioning and configuration
+• Auto-scaling and integrated with Spot instances
+• Use cases: data processing, machine learning, web indexing, big data...
+
+Another type of database we have on AWS is Amazon EMR. And EMR stands for Elastic Map Reduce. So EMR is actually not really a database. It's to create what's called a Hadoop cluster when you want to do big data on AWS. And a Hadoop cluster is used to analyze and process vast amounts of data. So Hadoop is an open source technology, and they allow multiple servers that work in a cluster to analyze the data together. And so when you're using EMR, you can create a cluster made of hundreds of EC2 instances that will be collaborating together to analyze your data. So part of the Hadoop ecosystem, the big data ecosystem, you will see projects named such as Apache Spark, HBase, Presto, and Flink. And all these things will be working on top of your Hadoop cluster. So what is EMR then? Well, EMR takes care of provisioning all these EC2 instances and configuring them so that they work together and can analyze together data from a big data perspective. Finally, it has autoscaling, and it is integrated with Spark instances. And the use cases for EMR will be data processing, machine learning, web indexing, or big data in general. So from an exam perspective, any time you see a Hadoop cluster, think no more, it's going to be Amazon EMR. That's it. I hope that was helpful, and I will see you in the next lecture.
+
+#### Amazon Athena
+
+![](/img/07/49.png)
+
+Amazon Athena is a serverless query service to perform analytics against your objects stored in Amazon S3. The idea is that you would use a SQL query language to query these files, but you don't need to load them, they just need to be in S3, and Athena will do the rest. So these files can be formatted in different ways, such as CSV, JSON, ORC, Avro, and Parquet, and the Athena is built on the Presto engine, if you must know. Now how does that work? First, users will load data into Amazon S3, and then Amazon Athena will be used to query and analyze the data. Very, very simple. And then, if you wanted to, you could have some reporting on top of Athena, such as using Amazon QuickSight. Now, the pricing for Athena is around $5 per TB of data scanned, and if you use compressed or data stored in a columnar fashion, then you're going to have cost savings because there's less scan of the data being made. So the use cases of Athena are multiple, but any time you see business intelligence, analytics, or reporting, or to analyze flow logs in VPC, or ELD logs, or patch log, or platform logs, or all these kind of logs in AWS, then Athena is going to be a really, really good option. So from an exam perspective, whenever you see serverless, analyze data in S3, use SQL, then think Amazon Athena. That's it. I hope you liked it, and I will see you in the next lecture.
+
+#### Amazon QuickSight
+
+https://aws.amazon.com/quicksight/?amazon-quicksight-whats-new.sort-by=item.additionalFields.postDateTime&amazon-quicksight-whats-new.sort-order=desc
+
+
+![](/img/07/50.png)
+
+Now let's talk about Amazon QuickSights. So it's a serverless, machine-learning-powered business intelligence service to create interactive dashboards. So behind this very complicated tagline, all you have to remember is that Amazon QuickSights allows you to create dashboards on a daily basis so you can visually represent your data and show your business users the insights they're looking for. So QuickSights allows you to create all these kind of cool graphs, charts, and so on. So it's fast, it's automatically scalable, it's embeddable, and there's post-session pricing so you don't have to provision any servers. The use cases are business analytics, building visualizations, performing ad hoc analysis, get business insights using data, and in terms of integrations, there are so many. But for example, QuickSights can run on top of your RDS database, it can run on top of Aurora, Athena, Redshift, Amazon S3, and so on. So QuickSights is your go-to tool for BI in AWS. That's it. I will see you in the next lecture.
+
+#### DocumentDB ~mongoDB
+
+* Aurora is an “AWS-implementation” of PostgreSQL / MySQL ...
+* DocumentDB is the same for MongoDB (which is a NoSQL database)  
+  
+
+* MongoDB is used to store, query, and index JSON data
+* Similar “deployment concepts” as Aurora
+* Fully Managed, highly available with replication across 3 AZ  
+  
+
+* DocumentDB storage automatically grows in increments of 10GB
+* Automatically scales to workloads with millions of requests per seconds
+
+#### Amazon Neptune
+
+![](/img/07/51.png)
+
+Amazon Neptune is a fully managed graph database. An example of a graph dataset would be something we're all familiar with: a social network. In a social network, people have friends, they like posts, they connect, they read, they comment, and so on. Users have friends, posts have comments, comments receive likes from users, and users share and like posts. All these interactions are interconnected, creating a graph. This is why Neptune is a great choice of database when it comes to graph datasets.
+
+Neptune has replication across 3 Availability Zones (AZ) and supports up to 15 replicas. It's designed to build and run applications that work with highly connected datasets, like social networks. Neptune is optimized to run complex and challenging queries on these graph datasets. You can store up to billions of relationships in the database and query the graph with ease, delivering results in seconds. It’s highly available, with replication across multiple availability zones, and it’s also great for storing knowledge graphs. For example, the Wikipedia database is a knowledge graph because all the Wikipedia articles are interconnected with each other. Other use cases include threat detection, recommendation engines, and social networking.
+
+From an exam perspective, anytime you see anything related to graph databases, think of Neptune.
+
+
+#### Amazon Timestream
+
+![](/img/07/52.png)
+
+Now let's talk about Amazon Timestream. As the name suggests, it is designed for time series data. Timestream is a fully managed, fast, scalable, and serverless database specifically for time series data. So, what is time series data? It’s data that evolves over time. For example, on the vertical axis, we have a number, and on the horizontal axis, we have the year, which evolves from an older date to a newer date. Because the data is evolving over time, we refer to it as a time series dataset, and Timestream is designed just for that.
+
+Timestream offers automatic scaling up and down based on capacity and compute needs. You can store and analyze trillions of events per day in time series form. It's approximately 1,000 times faster and one-tenth the cost of traditional relational databases. Additionally, if you want to analyze time series data in real time, you can use a time series analytics function to find patterns in your data.
+
+So, whenever you see time series data mentioned in an exam, think of Amazon Timestream.
+
+#### Amazon QLDB
+
+• QLDB stands for ”Quantum Ledger Database”
+• A ledger is a book recording financial transactions
+• FullyManaged,Serverless,Highavailable,Replicationacross3AZ
+• Used to review history of all the changes made to your application data over time
+• Immutable system: no entry can be removed or modified, cryptographically verifiable
+
+
+• 2-3x better performance than common ledger blockchain frameworks, manipulate data using SQL
+• Difference with Amazon Managed Blockchain: no decentralization component, in accordance with
+financial regulation rules
+
+https://docs.aws.amazon.com/qldb/latest/developerguide/ledger-structure.html
+
+Amazon QLDB It cannot be removed or modified. And there's also a way to have the cryptographic signature to make sure that, indeed, nothing has been removed. So how does it work? Well, there is, behind the scenes, a journal. And so a journal has a sequence of modifications. And so any time a modification is made, there is a cryptographic hash that is computed, which guarantees that nothing has been deleted or modified. And so this can be verified by anyone using the database. So this is extremely helpful for financial transactions because you want to make sure that, obviously, no financial transaction is disappearing from the database, which makes QLDB a great ledger database in the cloud. So you get two to three times better performance than common ledger blockchain frameworks. And also, you can manipulate data using SQL. Now, as you'll see in the next lecture, there's also another database technology called Amazon Managed Blockchain. But the difference between QLDB and Managed Blockchain is that with QLDB, there is no concept of decentralization. That means that there's just a central database owned by Amazon that allows you to write this journal. And this is in line with many financial regulation rules. So the difference between QLDB and Managed Blockchain is that QLDB has a central authority component, and it's a ledger, whereas Managed Blockchain is going to have a decentralization component as well. So that's it. Any time you see financial transactions and a ledger, think QLDB. I will see you in the next lecture.
+
+#### Amazon Managed Blockchain
+
+
+* Blockchain makes it possible to build applications where multiple parties can execute transactions without the need for a trusted, central authority.
+* Amazon Managed Blockchain is a managed service to: • Join public blockchain networks
+* Or create your own scalable private network
+* Compatible with the frameworks Hyperledger Fabric & Ethereum
+
+Now let's talk about Amazon Managed Blockchain. What is blockchain? Blockchain makes it possible to build applications where multiple parties can execute transactions without the need for a trusted central authority. So, there is a decentralization aspect to blockchain. Amazon Managed Blockchain is a service that allows you to join public blockchain networks or create your own scalable private blockchain network within AWS. It is compatible with two blockchain frameworks so far: Hyperledger Fabric and Ethereum.
+
+From an exam perspective, if you see anything related to blockchains, Hyperledger Fabric, or Ethereum, you should think of Amazon Managed Blockchain, which is also a decentralized blockchain service. Make sure you remember that. That's all you need to know for the exam—you don't need to be a blockchain expert.
+
+
+#### AWS Glue
+
+* Managed extract, transform, and load (ETL) service 
+* Useful to prepare and transform data for analytics
+* Fully serverless service
+
+
+![](/img/07/54.png)
+
+Hey, now let's talk about AWS Glue. Glue is a managed Extract, Transform, and Load (ETL) service. From an exam perspective, that's the key point, but let's go a little deeper to understand how it works.
+
+So, what is ETL? ETL is very helpful when you have datasets that aren't in the right form or format needed for your analytics. The idea is to use an ETL service to prepare and transform that data. Glue does this, but traditionally, you would use servers to do it. With Glue, it's a fully serverless service, so you only need to focus on the actual data transformation, and Glue handles the rest.
+
+In a typical scenario, Glue ETL sits in the middle of the process. For example, let's say we want to extract data from both an S3 bucket and an Amazon RDS database. We would use Glue to extract the data from these sources. Once the data is extracted and in Glue, we would write a script to perform the transform part. Glue helps us transform the data, and then, once it's transformed, we can load that data into a destination like an Amazon Redshift database, where we can perform our analytics.
+
+Glue is a very powerful tool because it allows you to perform extraction, transformation, and loading into many different places.
+
+Additionally, there's another service called Glue Data Catalog. While it may not be covered on the exam, it's important to know as part of the Glue family. The Glue Data Catalog, as the name suggests, is a catalog of your datasets within your AWS infrastructure. This catalog keeps a reference of everything, including column names, field names, field types, etc. This information can be used by services like Athena, Redshift, and EMR to discover datasets and build the proper schemas for them.
+
+
+#### DMS – Database Migration Service
+
+
+![](/img/07/55.png)
+
+So we have seen in this section many different database technologies, and the question is: how do you migrate data from one database to another? For this, we can use DMS, which stands for the Database Migration Service. Let's say we have a source database, and we want to extract the data from it. We would run an EC2 instance with the DMS software, which will extract the data from the source database. Then, DMS will insert the data into a target database located elsewhere.
+
+With DMS, you get a quick and secure database migration to AWS that is resilient and self-healing. And, the cherry on top, the source database remains available during the migration, so you don't have to take it down. DMS supports many types of migrations. One is called a homogeneous migration, where the source and target databases are the same technology, for example, Oracle to Oracle. It also supports heterogeneous migrations, where the source and target databases are different technologies. For example, migrating from Microsoft SQL Server to Aurora. In such cases, DMS is smart enough to know how to convert the data from the source to the target.
+
+So, anytime you see a question about migrating a database on the exam, DMS is likely the answer. 
+
+
+#### Databases & Analytics Summary in AWS
+
+* **Relational Databases - OLTP**: RDS & Aurora (SQL)
+* **Differences between** : `Multi-AZ`, `Read Replicas`, `Multi-Region`
+* **In-memory Database**: ElastiCache
+* **Key/Value Database**: DynamoDB (serverless) & DAX (cache for DynamoDB)
+* **Warehouse - OLAP**: Redshift (SQL)
+* **Hadoop Cluster**: EMR
+* **Athena**: query data on Amazon S3 (serverless & SQL)
+* **QuickSight**: dashboards on your data (serverless)
+* **DocumentDB**:“AuroraforMongoDB”(JSON–NoSQLdatabase)
+* **AmazonQLDB**:FinancialTransactionsLedger(immutablejournal,cryptographicallyverifiable) 
+* **Amazon Managed Blockchain**: managed Hyperledger Fabric & Ethereum blockchains
+* **Glue**: Managed ETL (Extract Transform Load) and Data Catalog service
+* **Database Migration**: DMS
+* **Neptune**:graphdatabase
+* **Timestream**:time-seriesdatabase
+
+So let's summarize everything we know about databases and analytics in AWS. You just need to know which database corresponds to which use case going into the exam.
+
+* If you have a relational database and need OLTP (Online Transaction Processing), think RDS and Aurora. Both databases support the SQL language to query your data. You should also understand the differences between multi-AZ deployments, read replicas, and multi-regions, as well as their respective use cases.
+
+* If you need an in-memory database or in-memory cache, think ElastiCache.
+
+* If you're looking for a key-value database, think DynamoDB, which is a serverless database. If you need caching technology for DynamoDB, use DAX, a cache made specifically for DynamoDB.
+
+* If you're looking for data warehousing or OLAP (Online Analytical Processing), you should consider Redshift, a warehousing technology that also allows you to query data using SQL.
+
+* If you're trying to build a Hadoop cluster for big data analysis, use the EMR service.
+
+* If you want to query data stored in Amazon S3 in a serverless fashion using SQL, use Athena.
+
+* For creating interactive dashboards with visuals in a serverless fashion, use Amazon QuickSight, which is also used for business intelligence.
+
+* DocumentDB is essentially the Aurora equivalent for MongoDB. Anytime you see MongoDB, think DocumentDB, which uses JSON datasets and is a NoSQL database, just like DynamoDB.
+
+* Amazon QLDB is designed for financial transaction ledgers. Anytime you see financial transactions or a cryptographically verifiable ledger, think Amazon QLDB. It is a central database, as opposed to a decentralized database like Amazon Managed Blockchain, which supports managed Hyperledger Fabric and Ethereum blockchains on AWS.
+
+* Finally, if you need a managed Extract, Transform, and Load (ETL) service, use Glue, which also includes a data catalog service for discovering datasets across your various AWS databases.
+
+* If you need to move data between databases, use DMS, the Database Migration Service.
+
+* For a graph database, use Neptune.
+
+* For a time series database, use Amazon Timestream.
+
+### Other Compute Services
+
+#### What is Docker?
+
+#### ECS, Fargate & ECR Overview
+
+**ECS**
+
+![](/img/07/56.png)
