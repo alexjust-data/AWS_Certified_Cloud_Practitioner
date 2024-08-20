@@ -69,6 +69,12 @@
     - [Shared Responsibility Model for S3](#shared-responsibility-model-for-s3)
     - [AWS Snow Family](#aws-snow-family)
     - [AWS Snow Family Hands On](#aws-snow-family-hands-on)
+    - [AWS Snowball Edge - Pricing](#aws-snowball-edge---pricing)
+    - [Storege Gateway Overview](#storege-gateway-overview)
+    - [S3· Summmary](#s3-summmary)
+  - [Databases Section](#databases-section)
+    - [RDS \& Aurora Overview](#rds--aurora-overview)
+    - [RDS Hands On](#rds-hands-on)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -3680,4 +3686,236 @@ So, in summary, we've covered Snowcone and Snowball Edge devices. They are used 
 
 #### AWS Snow Family Hands On
 
+Let's start with Snow Family Service. 
+
+![](/img/06/117.png)
+
+From the console, you can order a Snow Family device, and you have to name your job, for example, `DemboJob`. You need to choose a job type, such as `importing data into Amazon S3`, which is the most common use case. You can also `export data from Amazon S3`. You can order a Snow device just for `local compute and storage only`. This gives you a device, a server that can run in a remote location without being connected to the Internet. Alternatively, you can `import virtual tapes into the AWS Storage Gateway`. We'll choose the first option, "Import into Amazon S3."
+
+![](/img/06/125.png)
+
+Here, we have several options for `Snow devices`: Snowcone, Snowcone SSD, Snowball Edge Storage Optimizer 80TB, Compute Optimizer, and Compute Optimizer GPUs. AWS may add more options over time. I might not re-record this video, but that's fine. I always cover what's on the exam, so don't worry. As you can see, we have several options, and in the first picture, you can see the use case for each option, so I won't go over them. But this is a helpful way to know what you're getting.
+
+Let's say we go with the `Compute Optimizer Snowball Edge`, for example. Then, we need to choose a `pricing option`. We have on-demand pricing, monthly pricing, or a commitment for a one- or three-year period. Next, we select the `storage type`—it's an `S3 data transfer`. 
+
+![](/img/06/119.png)
+
+We also need to choose which AMI we want to use on it. Since this is a compute type of instance, we can load an AMI, like Amazon Linux 2 for Snowfamily. You can create your own AMI if you have specific compute needs.
+
+Next, you decide where to load the data. What S3 buckets are available to you? I have this one here, but you can create your own S3 bucket. 
+
+
+![](/img/06/120.png)
+
+Then, we have several features and options to consider. For example, we can enable IoT Greengrass for Snow to add IoT capability to your Snow device, although it's not necessary. You can also manage the device remotely using UpSide or the Snowball client.
+
+Next, you need to decide what type of encryption you want on your Snowball device. You can use the provided encryption key, or create your own KMS key to encrypt it. After that, you must grant access to your administration and SNS to publish actions and send data, which means you'll need to create the service role. Then, you need to add an address, specifying where you want it shipped—country, state, etc.—as well as the shipping speed and the SNS notification settings for job status changes. Finally, you'll get a job summary.
+
+![](/img/06/122.png)  
+
+![](/img/06/123.png)  
+
+That's it! You've seen all the options for Snow devices and the Snow Family. Remember, it's most commonly used to send data into and out of Amazon S3, and it provides remote compute capabilities. We've also reviewed the different types of devices: Snowcone, Snowball, and Snowmobile. That's all for now. I hope you liked it, and I will see you in the next lecture.
+
+![](/img/06/124.png)
+
+
+#### AWS Snowball Edge - Pricing
+
+Let's talk about Snowball Edge pricing. 
+
+* You will pay for the usage of the device as well as for data transfer out of AWS. If you transfer data from AWS onto your Snowball Edge and then receive it, you'll incur charges for this. 
+* However, if you put data onto your Snowball Edge and then transfer that data into Amazon S3, it will be free—$0 per gigabyte. So, uploading data to Amazon S3 is free.
+
+Next, regarding the pricing of the device itself, there are two levels. 
+
+* The first is `on-demand` pricing, where you pay a one-time service fee per job. 
+  * This fee covers 10 days of usage for the 80 terabytes Snowball Edge storage-optimized device, 
+  * or 15 days for the 210 terabytes device. 
+* Note that shipping days are not included in the 10 or 15 days limit. Shipping from AWS to you, or from you back to AWS, is free. 
+* After the initial 10 or 15 days, you’ll be charged for each additional day of usage.
+
+The second pricing option is `committed upfront`, 
+* where you pay in advance for a monthly, one-year, or three-year usage of the Snowball Edge. This is particularly useful if you're doing edge computing. 
+* By committing upfront to long-term usage, you can receive up to a 62% discount.
+
+From an exam perspective, the key point to remember is that you have to pay for everything except for transferring data into Amazon S3, which is free at $0 per gigabyte.
+
+#### Storege Gateway Overview
+
+* AWS is pushing for ”hybrid cloud”
+  * Part of your infrastructure is on-premises 
+  * Part of your infrastructure is on the cloud
+* This can be due to
+  * Long cloud migrations
+  * Security requirements
+  * Compliance requirements • IT strategy
+* S3 is a proprietary storage technology (unlike EFS / NFS), so how do you expose the S3 data on-premise?
+* AWS Storage Gateway!
+
+We've seen Amazon S3 as a standalone service, but it is also possible to use it in a hybrid cloud setting. AWS enables you to bridge your on-premises environments with AWS, which is known as a hybrid cloud. In this setup, part of your infrastructure is on-premises, while the rest is in the cloud.
+
+Why might you choose this approach? There are several reasons. Perhaps you initially created your on-premises infrastructure and are now in the process of migrating to the cloud, which can be a lengthy process. Alternatively, due to security or compliance requirements, it might be part of your strategy to keep some resources on-premises while leveraging the cloud for others. There are many use cases for maintaining a hybrid setup, with some IT resources on-premises and others in the cloud.
+
+Amazon S3 is a proprietary storage technology, which means it is not like the EFS service or NFS protocol that can be used directly on on-premises servers. To expose S3 data on-premises, you need to use something called a Storage Gateway.
+
+**AWS Storage Cloud Native Options**
+
+![](/img/06/126.png)
+
+To summarize the storage options on AWS: block storage would be EBS or an EC2 instance store; file storage would be a network file system, such as Amazon EFS; and object storage would be Amazon S3 or Glacier.
+
+**AWS Storage Gateway**
+
+![](/img/06/127.png)
+
+So where does the Storage Gateway fit into all of this? The Storage Gateway bridges your on-premises data with cloud data in AWS, allowing your on-premises systems to seamlessly extend their storage capabilities into the cloud. It is typically used for disaster recovery, backup and restore, or tiered storage.
+
+There are different types of Storage Gateways: File Gateway, Volume Gateway, and Tape Gateway. You don't need to know all of these types for the exam. What you do need to know is that the Storage Gateway allows you to bridge whatever happens on-premises directly into the AWS cloud. Behind the scenes, the Storage Gateway uses Amazon EBS, Amazon S3, and Glacier.
+
+From a Certified Cloud Practitioner perspective, the Storage Gateway is a way to bridge your file systems and storage on-premises with the cloud, allowing you to leverage the best of both worlds. If you were taking the AWS Certified Solutions Architect Associate course, you would need to understand the Storage Gateway in more detail, but for now, this overview should suffice for the Certified Cloud Practitioner exam.
+
+
+#### S3· Summmary
+
+* **Buckets vs Objects**: global unique name, tied to a region
+* **S3 security**: IAM policy, S3 Bucket Policy (public access), S3 Encryption
+* **S3 Websites**: host a static website on Amazon S3
+* **S3 Versioning**: multiple versions for files, prevent accidental deletes
+* **S3 Replication**: same-region or cross-region, must enable versioning
+* **S3 Storage Classes**: Standard, IA, 1Z-IA, Intelligent, Glacier (Instant, Flexible, Deep) • Snow Family: import data onto S3 through a physical device, edge computing
+* **OpsHub**: desktop application to manage Snow Family devices
+* **Storage Gateway**: hybrid solution to extend on-premises storage to S3
+
+Let's summarize what we've learned about Amazon S3, and I know it's a lot. First, we've learned about the difference between a bucket and an object. We know that buckets must have a globally unique name, and they are tied to a specific region, while objects reside within these buckets.
+
+For S3 security, we've seen that we can attach IAM policies to users or roles. Additionally, we can use S3 bucket policies, such as granting public access to an S3 bucket. We can also set up S3 encryption to protect files.
+
+We've learned that you can enable websites on an S3 bucket, which allows you to host a static website on Amazon S3. To do this, you must ensure the bucket is public, and then you can host static files.
+
+S3 versioning allows you to maintain multiple versions of a file, which helps prevent accidental deletions and allows you to roll back to previous versions if necessary.
+
+We've also discussed two types of S3 replication: same-region replication and cross-region replication. For these to work, you must enable versioning beforehand.
+
+We've covered different S3 storage classes, including Standard, Intelligent-Tiering, One Zone-Infrequent Access, and the various classes associated with Glacier, which are designed for archival purposes.
+
+We also reviewed the Snow Family, which includes physical devices used to import data into Amazon S3. These include the Snowmobile, Snowcone, and Snowball devices. If you use a Snowcone or Snowball Edge device, you can perform edge computing on your data. OpsHub is a desktop application that helps you manage your Snow Family devices and add data to them.
+
+Finally, we've seen how to extend on-premises storage to Amazon S3 using the AWS Storage Gateway.
+
+This was a big lesson, but hopefully, you now understand all the specifics of Amazon S3 that will help you answer the questions on the exam. That's it! I'll see you in the next section.
+
+### Databases Section
+
+
+**Databases Intro**
+
+* Storing data on disk (EFS, EBS, EC2 Instance Store, S3) can have its limits
+* Sometimes, you want to store data in a database...
+* You can structure the data
+* You build indexes to efficiently query / search through the data
+* You define relationships between your datasets
+
+* Databases are optimized for a purpose and come with different
+features, shapes and constraints
+
+First, I want to give you an introduction to what a database is and the different types of databases we have today. When you want to store your data on disk, whether it be on an EBS drive, an EBS volume, an EC2 instance store, or Amazon S3, you have your limits. If you want to store data in a structured way, you may want to store it in a database. This structure allows you to build indexes and efficiently query or search through the data. While services like EFS, EBS, EC2 instance store, and Amazon S3 allow for per-file operations, databases provide a much more structured environment where you can define relationships between your datasets.
+
+These databases today are all optimized for specific purposes and come with different features, shapes, and constraints. From an exam perspective, it's important to understand which database best fits the use case given in the question.
+
+**Relational Databases**
+
+![](/img/07/01.png)
+
+The first kind of database that has been very common and still is today is called a relational database. If you've used Excel before, you're familiar with spreadsheets. Relational databases are similar to Excel spreadsheets, but with links between tables. For example, we have a students table with four columns: student ID, department ID, name, and email. Then, you might have a second spreadsheet called the department spreadsheet, which takes the department ID and adds more information. In a relational database, you're defining a relationship between the department ID in the second column of the students table and the first column of the departments table. You can define more relationships, like linking a subjects table to the students table by defining another relation. This is why it's called a relational database.
+
+**NoSQL Databases**
+
+* NoSQL = non-SQL = non relational databases
+* NoSQL databases are purpose built for specific data models and have flexible schemas for building modern applications.
+* Benefits:
+  * Flexibility: easy to evolve data model
+  * Scalability: designed to scale-out by using distributed clusters • High-performance: optimized for a specific data model
+  * Highly functional: types optimized for the data model
+* Examples: Key-value, document, graph, in-memory, search databases
+
+Next, we have NoSQL databases. NoSQL means non-SQL, which refers to non-relational databases. NoSQL databases are more modern and are built for specific purposes with a specific data model in mind, often featuring a flexible schema for building modern applications. A schema is basically the shape of the data. The benefit of using a NoSQL database is greater flexibility—it’s easier to evolve the data model, and it’s scalable, designed to scale out by adding distributed servers. In contrast, scaling a relational database usually involves vertical scaling. But with NoSQL databases, horizontal scaling is possible. They also offer high performance, as they are optimized for specific data models and are highly functional. Types of NoSQL databases include key-value databases, document databases, graph databases, in-memory databases, and search databases. We will explore these in this section.
+
+**NoSQL data example: JSON**
+
+![](/img/07/02.png)
+
+For example, in a NoSQL database, the data can be stored in JSON format. JSON stands for JavaScript Object Notation, and we've seen this before when defining IAM policies. A JSON document, as you can see, does not resemble an Excel document at all. JSON is a very common way to describe data, featuring different sub-nesting of data, fields, names, and types. It’s a common way to model data in a NoSQL environment. The data can be nested—for example, if we look at the address field, it is nested within a higher object element. Fields can change over time, and new fields can be added to JSON documents as needed. JSON also supports arrays—for example, John, who is 30 years old, owns three different cars: Ford, BMW, and Fiat. He's a lucky man!
+
+As you can see, databases come in different forms, and we’ll explore them in detail in this session.
+
+**Databases & Shared Responsibility on AWS**
+
+* AWS offers use to manage different databases
+* Benefits include:
+  * Quick Provisioning, High Availability,Vertical and Horizontal Scaling • Automated Backup & Restore, Operations, Upgrades
+  * Operating System Patching is handled by AWS
+  * Monitoring, alerting
+  
+
+* Note: many databases technologies could be run on EC2, but you must handle yourself the resiliency, backup, patching, high availability, fault tolerance, scaling...
+NOT FOR DISTRIBUTION © Stephane Maarek www.datacumulus.com
+
+
+Now, a few words about databases and the shared responsibility model on AWS. AWS offers to manage different databases for us, which we'll cover in this section. The benefits of using a managed database include quick provisioning, high availability (as AWS designs with this in mind), and easy scaling, both vertically and horizontally. Managed databases also come with utilities for automated backup, restoration, operations, and upgrades. If you need to patch the operating system of the underlying instance, that responsibility falls to AWS, not you. AWS is responsible for the entire database in terms of patching. Monitoring and alerting are also integrated, making managed databases on AWS highly advantageous.
+
+Of course, you can run your own database technology on an EC2 instance, but if you do, you’ll need to manage everything related to resiliency, backup, patching, high availability, fault tolerance, and scaling yourself. This is why, in many cases, using a managed database is a lifesaver for various use cases.
+
+#### RDS & Aurora Overview
+
+* RDS stands for Relational Database Service
+* It’s a managed DB service for DB use SQL as a query language.
+* It allows you to create databases in the cloud that are managed by AWS
+  * Postgres
+  * MySQL
+  * MariaDB
+  * Oracle
+  * Microsoft SQL Server
+  * IBM DB2
+  * Aurora (AWS Proprietary database)
+
+The first type of databases we're going to discuss is relational databases, and for that, we have RDS. RDS stands for Relational Database Service, so it's clear that it's specifically for relational databases, and we'll be using the SQL language. It's a managed database service for databases that use SQL as the query language, and it allows you to create databases in the cloud that will be managed by AWS. These databases can be of different kinds, including PostgreSQL, MySQL, MariaDB, Oracle, Microsoft SQL Server, IBM DB2, and finally, something called Aurora, which is a proprietary database from AWS that we'll also discuss in this lecture.
+
+**Advantage over using RDS versus deploying DB on EC2**
+
+* RDS is a managed service:
+  * Automated provisioning, OS patching
+  * Continuous backups and restore to specific timestamp (Point in Time Restore)! • Monitoring dashboards
+  * Read replicas for improved read performance
+  * Multi AZ setup for DR (Disaster Recovery)
+  * Maintenance windows for upgrades
+  * Scaling capability (vertical and horizontal) • Storage backed by EBS
+* BUT you can’t SSH into your instances
+
+So why would we use RDS instead of deploying our own databases on EC2? RDS is a managed database service, meaning provisioning the database is automatic. AWS handles operating system patching, continuous backups, and restore options with point-in-time restore. You'll have monitoring dashboards to check the health of your database, and you can scale reads by creating read replicas to improve read performance. Additionally, you can set up multi-AZ deployments to ensure disaster recovery in case an entire availability zone goes down. You can also schedule maintenance windows for upgrades and scale both vertically and horizontally. The storage is backed by EBS. The only limitation is that you cannot SSH into your RDS database instance; you're simply using the service, and AWS fully manages the database, so SSH access is not available.
+
+**RDS Solution Architecture**
+
+![](/img/07/03.png)
+
+So where does RDS fit within our solution architecture? Imagine you have a load balancer in front of multiple back-end EC2 instances, possibly in an autoscaling group. These instances need to store and share data somewhere, and since it's structured data, they won't use EBS, EFS, or EC2 instance stores. Instead, they will use a relational database, which is SQL-based. The EC2 instances will connect to the database and perform reads and writes simultaneously, sharing the database on the back end. This is a classic solution architecture, not just for RDS but for any kind of database. You have the load balancer layer handling web requests, the back-end EC2 instances executing application logic, and the last tier, on the right-hand side, which is the database tier handling the read and write of the data.
+
+**Amazon Aurora**
+
+![](/img/07/04.png)
+
+Now, let's talk about Aurora. Aurora is a database technology created by AWS; it's not open source. It works similarly to RDS, with EC2 instances connecting directly to Amazon Aurora. Aurora supports two kinds of database technologies: PostgreSQL and MySQL. The idea behind Aurora is that it's cloud-optimized, providing a 5x performance improvement over MySQL on RDS and a 3x performance improvement over PostgreSQL on RDS. Additionally, you don’t need to worry about the storage of an Aurora database, as it automatically scales in increments of 10 gigabytes up to 128 terabytes. Although Aurora is about 20% more expensive than RDS, it is more efficient and should be more cost-effective overall. Lastly, Aurora is not included in the free tier of AWS, whereas RDS is.
+
+From an exam perspective, RDS and Aurora are the two main ways to create relational databases on AWS. Both are managed services, with Aurora being more cloud-native, while RDS runs familiar technologies as a managed service. 
+
+**Amazon Aurora Serverless**
+
+![](/img/07/05.png)
+
+There is also a serverless option for Amazon Aurora. In this option, database instantiation is automated, and autoscaling occurs based on the actual usage of your database. Both PostgreSQL and MySQL are supported as engines for Aurora's serverless database. You don’t need to perform any capacity planning, there’s no server management involved, and you pay per second, making it potentially more cost-effective than provisioning an Aurora cluster yourself. This is particularly beneficial for infrequent, intermittent, or unpredictable workloads.
+
+So how does it work? From the client's perspective, it's straightforward. The client connects to a proxy fleet managed by Aurora, and Aurora, behind the scenes, instantiates database instances as needed to scale up or down. These Aurora databases share the same storage volume, regardless of the instance count. For the exam, if you encounter a question about Aurora with no management overhead, think of Aurora Serverless.
+
+
+#### RDS Hands On
 
