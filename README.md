@@ -3919,3 +3919,56 @@ So how does it work? From the client's perspective, it's straightforward. The cl
 
 #### RDS Hands On
 
+Let's go ahead and create our first database in RDS. We're not going to cover all the options, but we'll go over the general idea of RDS and how it works. On the left-hand side, go to "Databases" and click `Create Database`. 
+
+![](/img/07/06.png)
+
+Here we have the interface, with two options: "Standard Create" and "Easy Create." "Easy Create" uses the recommended best practice configurations, whereas "Standard Create" allows you to customize everything. For this demonstration, I will use "Standard Create."
+
+We have different engine options: Aurora, MySQL, MariaDB, PostgreSQL, Oracle, and Microsoft SQL Server. In this demo, we'll launch a very simple managed MySQL database using RDS. There are many options available to us
+
+![](/img/07/07.png)
+
+We'll use the MySQL Community Edition and select the latest recommended version, 8.0.23, although the specific version doesn’t really matter for this demo. We have some templates to launch our MySQL RDS database, including "Production," "Dev/Test," and "Free Tier" templates, which are convenient because they pre-fill some of the settings below, and we’ll see what those mean. We'll choose the "Free Tier" template because we want to stay within the free tier.
+
+![](/img/07/08.png)
+
+Let's scroll down. For the "DB Instance Identifier," we'll use "database1." This is fine. The "Master Username" is set to "admin," which works well.  I'll enter the password twice, then scroll down. 
+
+![](/img/07/09.png)
+
+The database class is now a T2 Micro instance, which is the only option available because we chose the free tier setting. If we had selected the production setting, we could choose from other classes, but we'll stick with the T2 Micro type for this demonstration.
+
+
+>
+> NOTE : now other instance classes are in the free tier too such as db.t3.micro or db.t4g.micro
+
+![](/img/07/10.png)
+
+Next, we have some storage settings. We'll enable 20 GB of GP2 SSD storage and storage autoscaling in case we exceed 20 GB. This will automatically increase the storage, with a maximum of 1 TB (1,000 GB).
+
+>
+> NOTE : For `conectivity` set the two new options:
+> - Compute Resource = "don´t connect to an EC2"
+> - Network Type = "IPv4"
+>
+
+![](/img/07/11.png)
+
+Under "Availability & Durability," we won't change any settings for now. Moving on to "Connectivity," we need to specify where to launch the database. We'll choose a Virtual Private Cloud (VPC) and a subnet group. Do we want public access to our database? Yes, because you'll need to connect to your database from your computer if you don't have direct connectivity, which is likely the case for you. We'll keep it as "Yes, Public Access."
+
+Next, we’ll assign a security group. You can create a new security group, which I'll call "demo-database-RDS." We'll leave the "Availability Zone" as "No Preference." The database port is 3306, which is standard for MySQL. 
+
+![](/img/07/12.png)
+
+For authentication, we'll keep it simple and use password authentication. We won't go into additional configuration settings right now, as that could be overwhelming.
+
+As you can see, the RDS free tier is available for 12 months, offering a full month of RDS usage every month for the T2 Micro instance, 20 GB of SSD storage, and some space for backups. We'll go ahead and create this database.
+
+![](/img/07/13.png)
+
+![](/img/07/14.png)
+
+It took a few minutes, but now my database is created. 
+
+![](/img/07/15.png)
