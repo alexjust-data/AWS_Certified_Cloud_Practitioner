@@ -101,8 +101,10 @@
     - [API Gateway Overview](#api-gateway-overview)
     - [AWS Batch](#aws-batch)
     - [Lightsail Overview](#lightsail-overview)
-    - [Lightsail Hands on](#lightsail-hands-on)
     - [Other Compute - Summary](#other-compute---summary)
+  - [Deploying and Managing Infrastructure at Scale Section](#deploying-and-managing-infrastructure-at-scale-section)
+    - [CloudFormation Overview](#cloudformation-overview)
+    - [CloudFormation Hands on](#cloudformation-hands-on)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -4720,8 +4722,6 @@ Use cases for LightSail would include deploying a very simple web application. F
 
 To summarize, LightSail is not something you would use today on your own, but from an exam perspective, if you see someone with no cloud experience who needs to get started quickly with low and predictable pricing without much configuration, LightSail would be the right choice. Otherwise, LightSail will almost always be the wrong answer.
 
-#### Lightsail Hands on
-
 
 #### Other Compute - Summary
 
@@ -4733,3 +4733,22 @@ To summarize, LightSail is not something you would use today on your own, but fr
 * **ECR**: Private Docker Images Repository
 * **Batch**: run batch jobs on AWS across managed EC2 instances
 * **Lightsail**: predictable & low pricing for simple application & DB stacks
+
+
+Okay, so let's do a summary of all these new compute services we just learned about. First, we learned about Docker, a container technology that allows you to run applications. We saw how to run Docker on AWS. The first way is to use ECS, which allows you to run your Docker containers on EC2 instances, but you have to provision these instances in advance. Fargate works similarly, but this time we run the Docker containers without provisioning the infrastructure. It is transparent to us, making Fargate a serverless offering because we don't manage any EC2 instances to run these Docker containers. These Docker containers can be stored on AWS using ECR, a private Docker image repository.
+
+We also learned about the Batch service. Batch allows you to run batch jobs on AWS across a set of managed EC2 instances, and it actually runs on top of the ECS service. Finally, we learned about a new type of service to run predictable and low-cost simple applications and database apps, which is Lightsail. Lightsail is likely to be a part of the exam structure, and after our hands-on experience, we now know what to expect and how the service works.
+
+Now, let's talk about Lambda. Lambda is a serverless service that provides Function as a Service (FaaS) capabilities. It offers seamless scaling, from one invocation to thousands of invocations per second, and it's fully reactive. There are two main components for billing on Lambda: the runtime, which is the amount of memory provisioned for your Lambda function, and the number of times your Lambda function has been invoked.
+
+In terms of language support, Lambda supports many different programming languages. While it does support container images, these must implement a specific runtime API, so it’s important to note that Lambda does not support arbitrary Docker images. For that, you would use ECS or Fargate. However, if your Docker image implements the Lambda container runtime API, then it can run on Lambda, but this is not the standard approach. The maximum invocation time is 15 minutes. Common use cases for Lambda include creating thumbnails for images uploaded to Amazon S3 or running a serverless cron job.
+
+Finally, if you want to expose all of these functions as APIs, you would use another serverless service called API Gateway, which allows you to expose your functions as HTTP APIs and provides features like security, throttling, API keys, and more. That's it for this section.
+
+### Deploying and Managing Infrastructure at Scale Section
+
+
+#### CloudFormation Overview
+
+
+#### CloudFormation Hands on
