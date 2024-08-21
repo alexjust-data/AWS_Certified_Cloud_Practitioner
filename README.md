@@ -98,6 +98,11 @@
     - [Serveless Introduction](#serveless-introduction)
     - [Lambda Overview](#lambda-overview)
     - [Lambda Hands On](#lambda-hands-on)
+    - [API Gateway Overview](#api-gateway-overview)
+    - [AWS Batch](#aws-batch)
+    - [Lightsail Overview](#lightsail-overview)
+    - [Lightsail Hands on](#lightsail-hands-on)
+    - [Other Compute - Summary](#other-compute---summary)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -4544,3 +4549,187 @@ Now there's another very common use case for Lambda, which is to create a server
 Now let's just talk about the pricing. So you can find the Lambda pricing at this URL, but it's very simple. You pay per call, so that means the first 1,000,000 Lambda invocations are free. And then, it's also very, very cheap. You're going to pay `$0.20` per 1,000,000 requests thereafter. You're also going to pay for the duration, so the free tier, as I said, is 400,000 gigabyte seconds of compute time for free, and that means it's 400,000 seconds if the function has 1 gigabyte of RAM, or 3.2 million seconds if the function has 128 megabytes of RAM. After that, you're going to pay `$1` for 600,000 gigabyte seconds, so all in all, the bottom line is that it's going to be very cheap to run Lambda on AWS, and so it's a very popular service to run your serverless applications and websites. And going into the CCP exam, you need to remember that Lambda pricing is based on calls and duration. So that's it for this lecture. I hope you liked it, and I will see you in the next lecture.
 
 #### Lambda Hands On
+
+Okay, so we're going to practice using the Lambda service. And when you're going to have that, you may end up on the screen, but there's another screen I really like. And so if you're in your URL replies slash discover by slash begin, you may end up on the screen, which I really like because it has an educational value I want to show you. So Lambda is here to help you run code without thinking about servers, and this makes it a truly serverless service. So the idea is that you can use any type of programming language you want, for example .NET Core, Go, Java, the JS500 Ruby, any custom runtime you want to have, a runtime provided by an open source, for example the Lambda, as much runtime as possible. And so from this code, you will have it written, uploaded into the Lambda console, and then Lambda will run the code for you. So let's take a very simple code, for example Python, with a Lambda handler, we're going to create the event and then say return hello from Lambda. So click on run, and we get hello from Lambda. So that means that the Lambda function just read the code that we have provided right here. Very simple, right?
+
+![](/img/07/67.png)
+
+Next, how does Lambda function get invoked? But also, we can have Lambda respond to events. And this is what I want to show you, I think it's really cool. So as you can see, events can come from various sources. For example, this one, this is streaming analytics. And so as the streaming analytics is sending events into a Lambda function, the Lambda function is returning hello from Lambda, hello from Lambda, hello from Lambda, and so on. But it's not just the streaming analytics. If you click on the phone right here, it's going to send a message into a mobile IoT backend, and this IoT backend will also invoke our Lambda function. Same for if you take a photo and upload it into a script bucket for data processing, then the Lambda function will be invoked. But the cool thing is that if you start clicking a lot on one of these sources, you can see on the right-hand side we have more codewords. So as the left-hand side flow and invocations of Lambda scales, then the number of Lambda invocations and concurrent Lambda functions running will be scaling as well. So it's really cool because that means that as we have more load, automatically Lambda will scale with our load. And that is the whole power of using Lambda as a compute platform, and this is why Lambda has serverless, and it scales really well. 
+
+![](/img/07/68.png)
+
+So if we go in here, as you can see, as the Lambda function is invoked, we get more invocations over time, and the cost remains zero because there's a free tier. And as soon as we will pass 1 million invocations, then the Lambda function will start incurring some charges. So if we go in there and start having over 1 million invocations, here we go. Now we're getting some cents. As you can see, we are at almost 2 million invocations, and we have only 14 cents as a cost. So it's very, very cost-efficient to have a Lambda function and to run some more code at scale. So as you can see, you can play around and see that the more you have invocations, the more the cost goes, but it's really, really controlled. And Lambda can be quite a cost-saving mechanism if you use it at scale. 
+
+![](/img/07/69.png)
+
+
+So this is just for the introduction to Lambda. So if I click on Create a Function, I can choose between three options. And I'm going to choose to use a blueprint for this one, and it's going to be the Hello World function, so I'm just going to search by Hello World, and then I will choose the Python version. So Python 3.10 is an example, but this could be a different version for you as long as it's Python. Next, for the function name, we're going to enter demo minus Lambda. And then we're going to create a new role with basic Lambda permissions. This is going to be the IAM role of our Lambda function. 
+
+![](/img/07/70.png)
+
+Then we can have a look at the function code. So this is what a Lambda function looks like. So we have a Lambda handler. This is the function that actually handles the event of invoking our Lambda function. And right now, it just prints a bunch of values and returns the key one. So we'll have a look at this in detail when we test our function. So when you're ready, just click on Create Function. 
+
+![](/img/07/71.png)
+
+Okay, so my function is created. And as you can see, the code has a code source in here. I can click on Lambda function.py and open it. We can see that the function code we got from before is now related to this code editor. So why don't we go ahead and test this function.
+
+![](/img/07/72.png)
+
+So I'm going to click on Test. And we need to create a new test event, which is a hello world event, which contains key one, value one, key two, value two, key three, value three, as a JSON document. So I'll call this one Demo Event. And click on Create.
+
+![](/img/07/73.png)
+
+So now the demo event was successfully saved. So if I click on Test now, it was going to run the demo event. And the response is value one. The function log is that value one equals value one, value two equals value two, value three equals value three, which is just a result of this. Three print statements. And finally, the response value is value one, again, due to this line of code. So it may not look like much, but from a programmer's perspective, as you can see, you had just some code, and it was uploaded to Lambda, and then it was run by Lambda very quickly. So this is a huge improvement if you're a developer, as you can see, to deploy the code and have it run. And on top of it, it runs seamlessly, and it will scale automatically, and it is fully serverless. We didn't deploy any servers. In terms of build duration, so if you go in here and scroll down, as you can see, the duration was 2.32 milliseconds. We've been building for 3 milliseconds of execution. And here's the memory size that we provisioned, and the one that was used, and how much the init was, because this is the first time that we have used our Lambda function. 
+
+![](/img/07/74.png)
+
+If I run it again, if I go back to my function, excuse me, and run this one again, as you can see now, the function duration was only 34 milliseconds. And we're right inside. There was no initiation, because my Lambda function was ready to be used.
+
+Now, the other thing I want to show you is that from this Lambda function, we're able to configure it. So if I go to general configuration, we get some of the most important settings. 
+
+![](/img/07/75.png)
+
+The first one is around memory. So we can add memory from anywhere between 128 megabytes up to 10,240 megabytes of memory. Anywhere between 3 seconds or 5 seconds, all the way to, as you can see, 15 minutes, as the maximum timeout is 15 minutes, but you want to make sure that you only use Lambda function for the time that you think it's going to be used for. And then the execution role is the one that was created by Lambda in the beginning.
+
+![](/img/07/76.png)
+
+ So those are some of the most important settings. And the other thing we can look at is monitoring. So in monitoring, we're able to see what is going on within the function, so how many times it was invoked. So if you have one time, how long it lasted, whether or not there was errors or successes, and so on. So it could be quite helpful. 
+ 
+![](/img/07/77.png)
+ 
+ We have integration with PyWatch metrics and also PyWatch logs. So right now we have nothing, but we could look at the PyWatch logs right now when the function runs. So to do so, just refresh on the right-hand side the recent invocations, and you can see that there's a log stream right here. 
+
+![](/img/07/79.png)
+
+So if I click on it, I am taken directly into the PyWatch logs, and we can see that on the PyWatch logs, we have all the logs of the invocation of this Lambda function, and it's within a lab group called alsLambda. demoLambda and demoLambda is the name of my Lambda function within my region, obviously. And we have one log stream right here. So we get all the logs into Lambda. 
+
+![](/img/07/80.png)
+
+And other things you can try is to modify the code. For example, if you take this code, you go to the Lambda function, and I will comment this line of code by adding a hashtag and uncomment this one. This is going to raise an exception. So to do so, I need to first deploy the changes that have been deployed. And now I can test my function. 
+
+![](/img/07/81.png)
+
+And in this type, we get an execution result with an error. Something went wrong. Type is exception. As you can see, something went wrong, which was triggered by this code right here. So any type of errors also will be recorded by Lambda. And you can look into PyWatch logs to understand as well where the log of the error happens.
+
+![](/img/07/82.png)
+
+If I go back to PyWatch logs, you get a second log stream right here, which will make you open. And you get this exception right here. So it's helpful for us to go back as well to the logs of the exception of the PyWatch logs to understand the root cause of the issue.
+
+![](/img/07/84.png)
+
+So you can now run the function again. Fine. You just reverse what you did, and you click on test. 
+
+```py
+import json
+
+print('Loading function')
+
+def lambda_handler(event, context):
+    print("Received event: " + json.dumps(event, indent=2))
+    print("value1 = " + event['key1'])
+    print("value2 = " + event['key2'])
+    print("value3 = " + event['key3'])
+    return event['key1']  # Echo back the first key value
+    #raise Exception('Something went wrong')
+```
+
+![](/img/07/74.png)
+
+And again, now this time, this Lambda execution function will work. 
+
+
+So some of the last things you may want to check out is the fact that in here, the runtime settings were running Python 3.7 in this example. 
+
+![](/img/07/85.png)
+
+But you may get an updated version maybe on your end. And the handler is Lambda function.LambdaHandler, which is saying to look at the Lambda function.py file and the function name LambdaHandler. So if you go up, you can see the function name is Lambda underscore function.py. And within it, you have the Lambda underscore handler function. So this is why it's new to invoke this function particularly. 
+
+Also, we have written PyWatch logs. And the reason we were able to do so is that if we go into the configuration of our Lambda and go to the permissions tab, we have a role name called DemoLambdaRole that was created for us by the Lambda console.
+
+![](/img/07/86.png)
+
+And if you look at the policy itself, we can see within the policy summary that we have access to write to PyWatch logs, 
+
+![](/img/07/87.png)
+
+
+which is something you can also see right here by resource summary, that PyWatch logs display actions and resources which allow us to create log streams and log groups and also send the logs to PyWatch logs. So this is the whole idea behind this permissions tab right here. 
+
+![](/img/07/88.png)
+
+So that's it for this lecture. I hope you liked it. And if you are in the Certified Developer course on AWS, then get ready for an extra few hours of content on Lambda. If you're not, well, this is enough for your exam. I hope you liked it, and I will see you in the next lecture. Thank you.
+
+
+#### API Gateway Overview
+
+![](/img/07/65.png)
+
+Now, let's talk about a quick service called the Amazon API Gateway. So this comes from the use case, from an exam perspective, of do you want to build a serverless HTTP API? So in this example, we have serverless technology, so we're using Lambda, and we're reading, creating, and deleting data from DynamoDB, which are both serverless technologies. But we want external clients to be able to access our Lambda function. But our Lambda function is not exposed as an API right away. For this, we need to expose it through an API gateway, which is going to provide the client with the REST HTTP API to connect directly to your website. And so, as you can see, the client will talk to the API gateway, the API gateway will proxy the request to your Lambda functions, which will execute the transformations on your data. And so API gateway is used as a fully managed service that is going to allow developers to easily create, publish, maintain, monitor, and secure APIs in the cloud. It is a serverless technology, and it is fully scalable. It supports RESTful APIs and also WebSocket APIs for real-time streaming of data. It supports also security, user authentication, API throttling, API keys, monitoring, and so on. So when you see going to a web to create a serverless API, you need to think about API gateway and Lambda. That's it for this lecture. I hope you liked it, and I will see you in the next lecture.
+
+#### AWS Batch
+
+* Fully managed batch processing at any scale
+* Efficiently run 100,000s of computing batch jobs on AWS
+* A “batch” job is a job with a star t and an end (opposed to continuous) • Batch will dynamically launch EC2 instances or Spot Instances
+* AWS Batch provisions the right amount of compute / memory
+* You submit or schedule batch jobs and AWS Batch does the rest!
+* Batch jobs are defined as Docker images and run on ECS
+* Helpful for cost optimizations and focusing less on the infrastructure
+
+So now let's talk about a service that is named after what it does, AWS Batch. Batch is a fully managed batch processing service that allows you to do batch processing at any scale. With the Batch service, you can efficiently run hundreds of thousands of computing batch jobs on AWS very easily.
+
+So, what is a batch job? A batch job is a job that has a start and an end. This is opposed to, say, a continuous or streaming job that really doesn't ever end—it's always running. But a batch job, for example, might start at 1 a.m. and finish at 3 a.m. So, a batch job has a specific point in time when it occurs.
+
+The Batch service will dynamically launch EC2 instances or Spot instances to accommodate the load you have to run these batch jobs. Batch will provision the right amount of compute and memory for you to handle your batch queue. You just submit or schedule batch jobs into the batch queue, and the Batch service does the rest.
+
+Now, how do you define a batch job? Well, it is simply a Docker image with a definition that you run on the ECS service. This essentially means that anything that can run on ECS can run on Batch. This makes it very helpful to use Batch to run these jobs. And because it automatically scales the right number of EC2 instances or Spot instances to handle these jobs, you benefit from cost optimizations and can focus much less on the infrastructure, concentrating instead on your batch jobs.
+
+This should be more than enough to cover the example. I just want to show you a small diagram that I made.
+
+**AWS Batch – Simplified Example**
+
+![](/img/07/89.png)
+
+So for example, say we wanted to process images submitted by users into Amazon S3 in a batch way. So an image would be put into Amazon S3 and this would trigger a batch job. And so Batch would automatically have an ECS cluster made of EC2 instances or Spark instances. And Batch would make sure that you have the right amount of instances to accommodate the load of batch jobs you have in the batch queue. And then these instances will be running your Docker images that will be doing your job. And then maybe that job will be to insert the processed object, maybe it's a filter on top of the image, into another Amazon S3 bucket. 
+
+**Batch vs Lambda**
+
+![](/img/07/90.png)
+
+So the question we have is what is the difference between Batch and Lambda because they look similar. 
+
+* So Lambda has a time limit. It's 15 minutes. And you only get access to a few programming languages. On top of it, you have limited temporary disk space if you want to run your jobs. And it's going to be serverless. 
+* Whereas Batch is very different. So Batch has no time limit because it relies on EC2 instances. It's any runtime that you want as long as you package it as a Docker image. And for storage, you rely on the storage that comes with an EC2 instance. So it could be an EBS volume or an EC2 instance store for disk space which can be a lot more than four Lambda functions. And then finally, Batch is not a serverless service. It's a managed service but it relies on actual EC2 instances being created. But these EC2 instances are managed by AWS so we don't need to worry about the autoscaling and so on.
+
+#### Lightsail Overview
+
+* Virtual servers, storage, databases, and networking
+* Low & predictable pricing
+* Simpler alternative to using EC2, RDS, ELB, EBS, Route 53...
+* Great for people with little cloud experience!
+* Can setup notifications and monitoring of your Lightsail resources
+* Use cases:
+  * Simple web applications (has templates for LAMP, Nginx, MEAN, Node.js...) 
+  * Websites (templates for WordPress, Magento, Plesk, Joomla)
+  * Dev /Test environment
+* Has high availability but no auto-scaling, limited AWS integrations
+
+LightSail is a bit of an oddball in AWS because it is kind of a standalone service. With LightSail, you can get virtual servers, storage, databases, and networking all in one place. It offers low and predictable pricing, which is why people use Amazon LightSail as a much simpler alternative to using services like EC2, RDS, ELB, EBS, and so on. LightSail is really intended by AWS for people with little cloud experience who don’t want to learn the intricate details of how the services work, such as networking, storage, and server configurations. This is not something you would use if you're trying to learn how AWS works in depth, but if you're someone with little to no cloud experience, then LightSail may be the service for you. From LightSail, you can also set up some monitoring and notifications for your LightSail resources.
+
+Use cases for LightSail would include deploying a very simple web application. For example, if you have a LAMP stack, Nginx, or Node.js, there are templates for that on LightSail. Or if you have a simple website, for example, WordPress, Magento, Plesk, Joomla—these kinds of things can be deployed very easily on LightSail. Finally, LightSail is also great for development and test environments in AWS. While LightSail has some concept of high availability, it does not support autoscaling and has limited AWS integrations.
+
+To summarize, LightSail is not something you would use today on your own, but from an exam perspective, if you see someone with no cloud experience who needs to get started quickly with low and predictable pricing without much configuration, LightSail would be the right choice. Otherwise, LightSail will almost always be the wrong answer.
+
+#### Lightsail Hands on
+
+
+#### Other Compute - Summary
+
+* **Docker** : container technology to run applications
+* **ECS**: run Docker containers on EC2 instances
+* **Fargate**:
+  * Run Docker containers without provisioning the infrastructure 
+  * Serverless offering (no EC2 instances)
+* **ECR**: Private Docker Images Repository
+* **Batch**: run batch jobs on AWS across managed EC2 instances
+* **Lightsail**: predictable & low pricing for simple application & DB stacks
