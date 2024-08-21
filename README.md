@@ -95,6 +95,9 @@
   - [Other Compute Services](#other-compute-services)
     - [What is Docker?](#what-is-docker)
     - [ECS, Fargate \& ECR Overview](#ecs-fargate--ecr-overview)
+    - [Serveless Introduction](#serveless-introduction)
+    - [Lambda Overview](#lambda-overview)
+    - [Lambda Hands On](#lambda-hands-on)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -4391,8 +4394,153 @@ So let's summarize everything we know about databases and analytics in AWS. You 
 
 #### What is Docker?
 
+* Docker is a software development platform to deploy apps
+* Apps are packaged in containers that can be run on any OS
+* Apps run the same, regardless of where they’re run • Any machine
+  * No compatibility issues
+  * Predictable behavior
+  * Less work
+  * Easier to maintain and deploy
+  * Works with any language, any OS, any technology
+  
+* Scale containers up and down very quickly (seconds)
+
+So we are getting into the ECS section. But before talking about ECS, we need to talk about Docker. So Docker is something you may have heard before. I'll try to simplify it. You can make a 12-hour-long course on Docker, but I'll try to make it short in 4 minutes. So what is Docker? Docker is a software development platform to deploy apps. So the way we've been deploying applications from before is to install them on Linux, and then they will work. But with Docker, you will package your app into something called a container, and that container is very special because it can be run on any operating system very easily. The app, once in the container, will run the exact same way regardless of where they run. So it could be any machine, no compatibility issues, with predictable behavior, less work, easier to maintain and deploy. It will work with any programming language, any operating system, any technology. And with Docker, you can scale containers up and down very quickly in a matter of seconds. 
+
+**Docker on an OS**
+
+![](/img/07/58.png)
+
+So that makes Docker something that is extremely powerful nowadays to deploy applications. So if we talk about Docker on an EC2 instance, we have, for example, a Docker running Java code, a Docker running Node.js code, a Docker running a MySQL database, a Docker running Java, and so on, all onto the same EC2 instance. So the idea is that if we manage to package our application in a Docker container, then it will become very easy for us to run it on an EC2 instance.
+
+**Where Docker images are stored?**
+
+* Docker images are stored in Docker Repositories
+
+* Public: Docker Hub https://hub.docker.com/ 
+* Find base images for many technologies or OS: • Ubuntu
+  * MySQL
+  * NodeJS, Java...
+  * Private: Amazon ECR (Elastic Container Registry)
+
+So Docker images, you need to create them. This is how your container will be run. And they can be stored in something called Docker repositories. So there is a public Docker repository called Docker Hub available at this address. And you can find the base images for many technologies in your operating system. So for Ubuntu, which is a Linux operating system, for MySQL, it's a database technology, Node.js, Java, programming languages. Or, as we'll see in this section, we can use Amazon ECR, which is a private Docker repository. So this is where you can store your private Docker images. So this is more advanced, but the question is, do you want to use Docker or a virtual machine?
+
+**Docker versus Virtual Machines**
+
+* Docker is ”sor t of ” a vir tualization technology, but not exactly
+* Resources are shared with the host => many containers on one server
+
+![](/img/07/57.png)
+
+So Docker is sort of a virtualization technology, but not exactly. So the resources are shared with the host. That means that you can have many containers on one server. So if you look at comparing EC2 and Docker, this is how it works. So we have the infrastructure, which is on AWS, the host operating system, then the hypervisor and this stuff we don't have access to, and then finally, when we get an EC2 instance, we have our application onto the guest operating system. And so if you want another EC2 instance, it will be created like this, and a third EC2 instance, it will be created like that. So this works great, and this is what happens when we create EC2 instances. But in the case of Docker, we have the infrastructure, the host OS, which is the EC2 instance, and then the Docker daemon, and then as soon as the Docker daemon is running, we can have many containers running onto the Docker daemon, and they're more lightweight, they don't package, they don't come with a full operating system and virtual machine, all of them. And so that makes Docker very versatile, very easy to scale, and very easy to run. So this is just an overview of Docker. If you don't need to know what Docker is, go to the exam, but I wanted to give you that sweet little overview in case you were curious, and in the next lecture, we'll deal about how to do Docker on AWS, and that will be ECS. So I will see you in the next lecture.
+
 #### ECS, Fargate & ECR Overview
 
 **ECS**
 
 ![](/img/07/56.png)
+
+So now let's talk about ECS. ECS stands for Elastic Container Service, and this is used to launch the Docker container we just talked about on AWS. For it to work, we need the Docker containers to run somewhere, and so for ECS, you must provision and maintain the infrastructure yourself, so that means you need to create EC2 instances in advance. AWS will take care of starting or stopping the containers for you, and it has integration with an application launcher if you want to create a web application on ECS. So as a diagram, we would have multiple EC2 instances, and we would need to create these EC2 instances in advance, and they will be running different containers by the ECS service. Now the ECS service, any time it has a new Docker container, it will be smart enough to find on which EC2 instance to place that Docker container. So any time in the exam you see, I want to run a Docker container on AWS, think of ECS.
+
+**Fargate**
+
+![](/img/07/59.png)
+
+Now let's talk about Fargate. So Fargate is also used to launch Docker containers on AWS, but this time with Fargate, we don't need to provision any infrastructure. So we don't need to create any EC2 instances and manage them, and this is a much more simple offering from AWS. This is actually a serverless offering because we don't manage any servers. AWS will just run the containers that we need based on the specification of CPU and RAM for each container. So Fargate is going to be a lot simpler to use, and I like it personally a lot. So Fargate is here, say we have to have a new Docker container to be run on Fargate, then Fargate will automatically run that container for us. We don't exactly know where, but it will be run. And so the idea here is that with Fargate, we don't manage any EC2 instances, and so it is easier to use. So before with ECS, we first created our EC2 instances, but we forget we don't. But both services allow you to run a Docker container on AWS.
+
+**ECR**
+
+![](/img/07/60.png)
+
+Finally, for storing these Docker images so that they can be run on AWS, we need to use a container registry, and for this we use ECR, which stands for Elastic Container Registry. It is a private Docker registry on AWS, and this is where you're going to store your Docker images so they can be run by the ECS service or the Fargate service. So to take an example, we have ECR and Fargate. We're going to store our images of our application onto Amazon ECR, and then Fargate will be able to look at these images and create a container from them and run them directly on the Fargate service. So there will be one container here, one container there, but this is ECR, so we could have multiple images as well, creating different containers on Fargate. So that's it. Very, very simple. So remember, ECS versus Fargate versus ECR. That's all you need to know going into the exam. I hope you liked it, and I will see you in the next lecture.
+
+
+#### Serveless Introduction
+
+**What’s serverless?**
+
+* Serverless is a new paradigm in which the developers don’t have to manage servers anymore...
+* They just deploy code
+* They just deploy... functions !
+* Initially... `Serverless == FaaS` (Function as a Service)
+* Serverless was pioneered by AWS Lambda but now also includes anything that’s managed: “databases, messaging, storage, etc.”
+* Serverless does not mean there are no servers...
+it means you just don’t manage / provision / see them
+
+So now I want to formally introduce the serverless section to you. So what is serverless? Serverless is a catchy word, but it is a new paradigm in which the developers don't manage the servers anymore. They just do what they do best, they just deploy the code, or they deploy functions. So initially, serverless was pioneered as a function as a service with AWS Lambda, and that means that you just deploy your code, and each function will be run independently by the Lambda service. But nowadays, anything that's serverless is mostly mentioned as something that is managed, and that includes servers managed by the user, so that includes serverless databases, messaging, storage, etc. So serverless does not mean that there are no servers. There are, of course, servers behind the scenes, otherwise services would not work. But it just means that as an end user, you don't manage, provision, or even see the servers. So in this course, we have been using some serverless services from the beginning.
+
+**So far in this course...**
+
+
+![](/img/07/61.png)
+
+
+
+* So `Amazon S3` was one of them because we used it as a storage layer, but we didn't manage any servers at all. Amazon S3 can scale infinitely, there were no servers, we just uploaded a file, and that was it. 
+* `DynamoDB` was another one. So DynamoDB, we just went ahead, we created a table, but we didn't provision a server for that table, and that table could autoscale based on the load it was receiving, so that makes it another serverless service. 
+* `Fargate` is another one, so Fargate was to run Docker containers, and as I said, with ECS, you create EC2 instances to run the Docker containers, so that would not be serverless. But with Fargate, you just send the Docker containers, and Fargate will automatically find a way for it to be run. So that makes it another serverless service. 
+* And in this section, we're going to see `Lambda`, which was a pioneer of serverless services. So Lambda allows you to run functions in the cloud. So this is just a quick intro to serverless, I will see you in the next lecture to talk about Lambda.
+
+
+#### Lambda Overview
+
+**Why AWS Lambda**
+
+![](/img/07/62.png)
+
+Okay, so now let's talk about AWS Lambda. So if we use an EC2 instance, we have a virtual server in the cloud, but we are bounded by the amount of memory and CPU power we give it. It is continuously running, even though sometimes we don't use it. And if we want to scale, we can use an autoscaling group, but that means that we need to add or remove servers over time. That may be a little slow, but that may be sometimes very complicated to implement. With Lambda, this is a new way to think about it. In this case, we don't have servers, we just have virtual functions. And these functions are limited by time. So they're intended for shorter type of executions. They will run on-demand, so that means that whenever we run a function, it will be there to be run, but whenever we don't need a function, it will not be run and it will not be built for it. And in case we need scaling, it's already automated as part of the Lambda service, and this is why Lambda is a very popular service from AWS. 
+
+**Benefits of AWS Lambda**
+
+* Easy Pricing:
+  * Pay per request and compute time
+  * Free tier of 1,000,000 AWS Lambda requests and 400,000 GBs of compute time
+* Integrated with the whole AWS suite of services
+* Event-Driven: functions get invoked by AWS when needed
+* Integrated with many programming languages
+* Easy monitoring through AWS CloudWatch
+* Easy to get more resources per functions (up to 10GB of RAM!) • Increasing RAM will also improve CPU and network!
+
+So the benefits of using AWS Lambda is that the pricing is, first of all, super easy. You're going to pay per request and per compute time. And the free tier is also very generous. So you get, every month, 1 million Lambda invocations and 400,000 gigabyte seconds of compute time. What this means is that you can run on Lambda some pretty good services for free. Now, it is integrated with the whole AWS suite of services, so we have integration with so many of the services we've seen so far, and it is, very important, event-driven. So the functions will only get invoked by AWS when something happens, when an event happens, or when needed. So that makes Lambda a reactive type of service, which is important going into the exam. It is fully integrated with many programming languages. You get easy monitoring through CloudWatch. We haven't seen what CloudWatch is, but it will be the monitoring solution in AWS. And finally, it's easy to get more resources per function. We can get up to 10 gigabytes of RAM per function. And if you do increase the RAM, it will also improve the CPU and the network quality. So, all in all, very good.
+
+**AWS Lambda language support**
+
+* Node.js (JavaScript)
+* Python
+* Java
+* C# (.NET Core) / Powershell • Ruby
+* Custom Runtime API (community supported, example Rust or Golang) 
+* Lambda Container Image
+  * The container image must implement the Lambda Runtime API 
+  * ECS / Fargate is preferred for running arbitrary Docker images
+
+AWS Lambda can run many languages, such as Node.js or JavaScript, Python, Java, C-Sharp, so either .NET Core or PowerShell, Ruby, and it supports many other languages, through something called the Custom Runtime API, for example. It supports the rest of the dual-languages through that. You also have the option to use containers on Lambda. So this is a container image, and it must depend on what's called the Lambda Runtime API. Now, that may be too advanced from an exam perspective, but what you should remember is that there is a service named ECS for firing it, and so to run container images, especially Docker images, it is always going to prefer, from an exam perspective, to run them on ECS or Fargate versus Lambda, even though Lambda supports running some level of customized Docker images. So, if you don't remember all the languages of course for Lambda, but you remember that it has some level of support, the most important ones are going to be, for sure, Node.js and Python. Here is a very common use case of Lambda, which is to create a serverless thumbnail creation service. 
+
+**Example: Serverless Thumbnail creation**
+
+![](/img/07/63.png)
+
+So, say we have an S3 bucket, and we add images in it. So our users are uploading each image into an S3 bucket. The S3 bucket will trigger a Lambda function once the image is uploaded, and that Lambda function will take that image, and will change it to create the thumbnail. It will push the thumbnail back into Amazon S3, so the thumbnail is a smaller version of the image, or it will also push some metadata about the thumbnail into DynamoDB. That includes the image size, the image name, the creation date, etc. And all of this is fully event-driven and fully serverless, with S3 we call provisioned servers, with Lambda we call provisioned servers, and with DynamoDB as well, we don't provision any servers. So that is a great pattern, because this serverless thumbnail creation will scale really, really well, and we will be able to not worry about provisioning servers to make it scale. 
+
+**Example: Serverless CRON Job**
+
+![](/img/07/64.png)
+
+Now there's another very common use case for Lambda, which is to create a serverless Chrome job. So Chrome allows you to define a schedule, for example, every hour, every day, or every Monday, and based on that schedule, to run a script. And by default, a Chrome job is run on a Linux AMI, so on a Linux machine, but we are serverless, so we cannot provision an EC2 instance. So instead, we'll be using something called CloudWatch Events, or EventBridge, and this service that we'll see later on in this course, will be triggering every one hour our Lambda function to perform the task. And effectively, we have no servers in this, because CloudWatch Events is serverless, and Lambda is serverless, and so effectively, we are launching a script every hour through a Lambda function. So I hope you can see now the trigger of it, the Lambda function is running from serverless functions in the cloud. 
+
+**AWS Lambda Pricing: example**
+
+* You can find overall pricing information here: https://aws.amazon.com/lambda/pricing/
+* Pay per calls:
+  * First 1,000,000 requests are free
+  * `$0.20` per 1 million requests thereafter ($0.0000002 per request)
+* Pay per duration: (in increment of 1 ms)
+  * 400,000 GB-seconds of compute time per month for FREE 
+  * == 400,000 seconds if function is 1GB RAM
+  * == 3,200,000 seconds if function is 128 MB RAM
+  * After that $1.00 for 600,000 GB-seconds
+* It is usually very cheap to run AWS Lambda so it’s very popular
+
+Now let's just talk about the pricing. So you can find the Lambda pricing at this URL, but it's very simple. You pay per call, so that means the first 1,000,000 Lambda invocations are free. And then, it's also very, very cheap. You're going to pay `$0.20` per 1,000,000 requests thereafter. You're also going to pay for the duration, so the free tier, as I said, is 400,000 gigabyte seconds of compute time for free, and that means it's 400,000 seconds if the function has 1 gigabyte of RAM, or 3.2 million seconds if the function has 128 megabytes of RAM. After that, you're going to pay `$1` for 600,000 gigabyte seconds, so all in all, the bottom line is that it's going to be very cheap to run Lambda on AWS, and so it's a very popular service to run your serverless applications and websites. And going into the CCP exam, you need to remember that Lambda pricing is based on calls and duration. So that's it for this lecture. I hope you liked it, and I will see you in the next lecture.
+
+#### Lambda Hands On
