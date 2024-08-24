@@ -105,6 +105,9 @@
   - [Deploying and Managing Infrastructure at Scale Section](#deploying-and-managing-infrastructure-at-scale-section)
     - [CloudFormation Overview](#cloudformation-overview)
     - [CloudFormation Hands on](#cloudformation-hands-on)
+    - [CDK Overview](#cdk-overview)
+    - [Beanstalk Overview](#beanstalk-overview)
+    - [Beanstalk Hands On](#beanstalk-hands-on)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -4753,6 +4756,8 @@ In this section, we'll see different ways to deploy your workloads onto AWS.
 
 #### CloudFormation Overview
 
+The first technology I want to talk about is CloudFormation. CloudFormation is such an important technology in AWS because it is a declarative way of outlining your infrastructure for any resources, and most of them are supported. To give you a concrete example, in CloudFormation, you would say, I want a security group, I want two EC2 instances that will be using that security group, I also want an S3 bucket, and I want a load balancer in front of all these machines. Then CloudFormation automatically creates all these things for you in the right order with the exact configuration that you specified.
+
 * CloudFormation is a declarative way of outlining your AWS Infrastructure, for any resources (most of them are supported).
 * For example, within a CloudFormation template, you say: 
   * I want a security group
@@ -4760,9 +4765,6 @@ In this section, we'll see different ways to deploy your workloads onto AWS.
   * I want an S3 bucket
   * I want a load balancer (ELB) in front of these machines
 * Then CloudFormation creates those for you, in the right order, with the exact configuration that you specify
-
-
-The first technology I want to talk about is CloudFormation. CloudFormation is such an important technology in AWS because it is a declarative way of outlining your infrastructure for any resources, and most of them are supported. To give you a concrete example, in CloudFormation, you would say, I want a security group, I want two EC2 instances that will be using that security group, I also want an S3 bucket, and I want a load balancer in front of all these machines. Then CloudFormation automatically creates all these things for you in the right order with the exact configuration that you specified.
 
 **Benefits of AWS CloudFormation (1/2)**
 
@@ -4972,14 +4974,142 @@ Parameters:
 So, as you can see, the server `security group` and the `SSH security group` already are created.  
 And only then will it **update** the EC2 `Myinstance`. So, now, the my instance is in update in progress. And as you can see, it says requested update requires the creation of a new physical resource, hence creating one. 
 
-So, if you go to the `EC2 console` and we remove this filter, now we see that we have two EC2 instances. This one was created, and now it is running. 
+So, if you go to the `EC2 console` a new instance got created, and once it's created, again, it's going to be updated here. The update is complete, and now we have `MyEIP`. So, now the Elastic IP is going to be created and then attached to my EC2 instance. So, if we're quick and we go on the left-hand side to Elastic IP, 
 
-So, a new instance got created, and once it's created, again, it's going to be updated here. The update is complete, and now we have my EIP. So, now the Elastic IP is going to be created and then attached to my EC2 instance. So, if we're quick and we go on the left-hand side to Elastic IP, even though we may not have seen what it is, here is Elastic IP that is properly created, properly tagged, and it is attached already to our EC2 instance. So, now if I click on this one, and then I click on networking, at the bottom, you see Elastic IP address here was attached.
+![](/img/08/17.png)
 
-So, everything was done by CloudFormation and was done well. And if you look at CloudFormation now in the events, as you can see, the Elastic IP was created, and then there was a cleanup in progress, delete in progress, so that means that the previous EC2 instance, right here, this one, gets terminated, which is very handy because CloudFormation takes care of everything. So, you can go into the resources tab and see everything that was created through CloudFormation. On top of it, if you go to the templates and you click on view in Application Composer, you're able to see now your new architecture. So, we have an EC2 instance connected to an Elastic IP and connected to two security groups. So, this is very handy because you get a visual presentation, again, of our templates.
+even though we may not have seen what it is, here is Elastic IP that is properly created, properly tagged, and it is attached already to our EC2 instance. So, now if I click on this one, and then I click on networking, at the bottom, you see Elastic IP address here was attached.
 
-So, finally, of course, CloudFormation, you could go ahead and delete things manually. You could delete this Elastic IP and so on, and EC2 instances manually, but this is actually not recommended. You don't want to touch anything manually when using CloudFormation. Instead, you want to either update the templates, or if you wanted to delete everything, just click on delete, and CloudFormation will delete all the stack resources. And the stack resources are also going to be deleted in the right order, so CloudFormation will figure out when to delete first and so on to clean up everything.
+![](/img/08/18.png)
+
+So, everything was done by CloudFormation and was done well. And if you look at CloudFormation now in the events, as you can see, the Elastic IP was created, and then there was a cleanup in progress, delete in progress, so that means that the previous EC2 instance, right here, this one, gets terminated, which is very handy because CloudFormation takes care of everything. So, you can go into the resources tab and see everything that was created through CloudFormation. 
+
+![](/img/08/19.png)
+
+On top of it, if you go to the templates and you click on **`view in Application Composer`**, 
+
+![](/img/08/20.png)
+
+you're able to see now your new architecture.  So, we have an `EC2 instance` connected to an `Elastic IP` and connected to two `security groups`. 
+
+![](/img/08/21.png)
+
+
+So, this is very handy because you get a visual presentation, again, of our templates.
+
+So, finally, of course, CloudFormation, you could go ahead and delete things manually. You could delete this Elastic IP and so on, and EC2 instances manually, but this is actually not recommended. You don't want to touch anything manually when using CloudFormation. 
+
+Instead, you want to either update the templates, or if you wanted to delete everything, just click on delete, 
+
+![](/img/08/22.png)
+
+and CloudFormation will delete all the stack resources. 
+
+![](/img/08/23.png)
+
+And the stack resources are also going to be deleted in the right order, so CloudFormation will figure out when to delete first and so on to clean up everything.
 
 So, CloudFormation is a really powerful service to do infrastructure as code because it's declarative. You just say what you want, and CloudFormation figures it out, and all the code will control your infrastructure, which is very, very handy. So, learning how to use it and write it can be a very good skill in AWS. So, I hope you liked it, and I will see you in the next lecture.
+
+
+#### CDK Overview
+
+**AWS Cloud Development Kit (CDK)**
+
+Okay, so now let's talk about the CDK, or AWS Cloud Development Kit. This is a way for you to define your cloud infrastructure using a familiar programming language. For example, you might not want to use CloudFormation directly because it uses a YAML format; instead, you might prefer JavaScript, TypeScript, Python, Java, or .NET, and you would like to write your cloud infrastructure using these languages. Thanks to the CDK, you can do that. Once you write your infrastructure using your programming languages, the code will be compiled by the CDK into a usable CloudFormation template in JSON or YAML format. This allows you to deploy your infrastructure and application runtime code together because they can potentially share the same languages, which is great for Lambda functions, Docker containers in ECS, and EKS.
+
+![](/img/08/24.png)
+
+Let's take an example. Let's choose Python, for example, as a programming language. We are going to write our own CDK application in Python, and we're going to define a Lambda function, a DynamoDB table, and maybe a few other services in AWS. Then this CDK application, using the CDK CLI, will be transformed into a CloudFormation template, which can then be applied in CloudFormation to deploy our infrastructure. The idea is that we want to use a programming language for cloud infrastructure because it allows us to get type safety, use familiar constructs, work more quickly, reuse code, use loops, and so on.
+
+
+**CDK Example**
+
+Here's an example of what CDK code would look like. In this example, using either JavaScript or TypeScript, we define a VPC, an ECS cluster, and a server application with a Fargate service. These three components will be compiled by the CDK CLI into a usable CloudFormation template that you can upload and deploy.
+
+![](/img/08/25.png)
+
+
+#### Beanstalk Overview
+
+**Typical architecture:Web App 3-tier**
+
+Now let's talk about Beanstalk. When we have deployed a web application in AWS, we typically follow an architecture called a three-tier architecture. Our users talk to a load balancer in multiple availability zones. Then the load balancer will forward traffic to multiple EC2 instances, managed by an Auto Scaling group. These EC2 instances need to store data somewhere, so they will use a database, such as Amazon RDS, or a relational database, to read and write data. If they need an in-memory database or an in-memory cache, they can also use ElastiCache to store and retrieve session data or cached data.
+
+Now, this architecture is something we can easily reproduce manually. We can also reproduce it on AWS through CloudFormation, but there is a better way.
+
+![](/img/08/26.png)
+
+**Developer problems on AWS**
+
+When you're a developer on AWS, you don't want to be managing infrastructure; you just want to be deploying code. You don't want to configure all the databases, load balancers, etc., and you want to ensure that whatever you're doing scales. As we saw, most web applications will have the same or a similar architecture with a load balancer and an Auto Scaling group. So, as a developer on AWS, all you want to do is run your code, possibly for different applications and environments in the same way.
+
+* Managing infrastructure
+* Deploying Code
+* Configuring all the databases, load balancers, etc • Scaling concerns
+* Most web apps have the same architecture (ALB + ASG)
+* All the developers want is for their code to run!
+* Possibly, consistently across different applications and environments
+
+**AWS Elastic Beanstalk Overview**
+
+That's where Elastic Beanstalk comes in. Elastic Beanstalk provides a developer-centric way of deploying an application on AWS. Behind Beanstalk, we have the same components we've seen before: your EC2 instances, your Auto Scaling group, your Elastic Load Balancer, your RDS database, etc. But with Beanstalk, it's a developer-centric view, meaning it's an easy-to-understand view with everything in it. You still have control over the integration of all the components, but it's all within Beanstalk.
+
+From a cloud perspective, Beanstalk is a platform-as-a-service, or PaaS, because we only worry about the code. To summarize, we've seen infrastructure-as-a-service (IaaS), platform-as-a-service for Beanstalk (PaaS), and software-as-a-service for other services on AWS. While using Beanstalk is free, you will pay for the underlying instances. 
+
+* Elastic Beanstalk is a developer centric view of deploying an application on AWS
+* It uses all the component’s we’ve seen before: EC2, ASG, ELB, RDS, etc...
+* But it’s all in one view that’s easy to make sense of!
+* We still have full control over the configuration
+
+
+* Beanstalk = Platform as a Service (PaaS)
+* Beanstalk is free but you pay for the underlying instances
+
+
+**Elastic Beanstalk**
+
+* Managed service
+  * Instance configuration / OS is handled by Beanstalk
+  * Deployment strategy is configurable but performed by Elastic Beanstalk • Capacity provisioning
+  * Load balancing & auto-scaling
+  * Application health-monitoring & responsiveness
+
+* Just the application code is the responsibility of the developer
+
+* Three architecture models:
+  * Single Instance deployment: good for dev
+  * LB + ASG: great for production or pre-production web applications 
+  * ASG only: great for non-web apps in production (workers, etc..)
+
+**Elastic Beanstalk**
+
+Beanstalk supports many platforms, including Go, Java, .NET, Node.js, PHP, Python, Ruby, Docker, Multi-Docker, and preconfigured Docker. You don't need to remember all these for the exam, but as you can see, Beanstalk supports a variety of ways to deploy your application, including Docker and many programming languages.
+
+Support for many platforms:
+* Go
+* Java SE
+* Java withTomcat
+* .NET on Windows Server with IIS
+* Node.js
+* PHP
+* Python
+* Ruby
+* Packer Builder
+* Single Container Docker 
+* Multi-Container Docker 
+* Preconfigured Docker
+
+
+**Elastic Beanstalk – Health Monitoring**
+
+Finally, a question that may come up in the exam is around health monitoring. Beanstalk has a full monitoring suite available within the service itself, with a health agent on each EC2 instance within Beanstalk that pushes metrics to CloudWatch. Within Beanstalk, you can view these metrics, perform monitoring, and so on. It will also check for application health and publish health events. I've included a bunch of screenshots to show that Beanstalk is a great way to perform health monitoring for your applications.
+
+Now, I want to give you a better idea of how Elastic Beanstalk works
+
+![](/img/08/27.png)
+
+
+####  Beanstalk Hands On
 
 
