@@ -5062,7 +5062,6 @@ From a cloud perspective, Beanstalk is a platform-as-a-service, or PaaS, because
 * But it’s all in one view that’s easy to make sense of!
 * We still have full control over the configuration
 
-
 * Beanstalk = Platform as a Service (PaaS)
 * Beanstalk is free but you pay for the underlying instances
 
