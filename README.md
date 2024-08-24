@@ -107,7 +107,15 @@
     - [CloudFormation Hands on](#cloudformation-hands-on)
     - [CDK Overview](#cdk-overview)
     - [Beanstalk Overview](#beanstalk-overview)
-    - [Beanstalk Hands On](#beanstalk-hands-on)
+    - [Beanstalk Hands On ---\> ERROR](#beanstalk-hands-on-----error)
+    - [AWS CodeDeploy](#aws-codedeploy)
+    - [AWS CodeCommit](#aws-codecommit)
+    - [AWS CodeBuild](#aws-codebuild)
+    - [AWS CodePipeline](#aws-codepipeline)
+    - [AWS CodeArtifact](#aws-codeartifact)
+    - [AWS Systems Manager (SSM)](#aws-systems-manager-ssm)
+    - [Systems Manager – SSM Session Manager](#systems-manager--ssm-session-manager)
+    - [AWS CodeStar](#aws-codestar)
 ---
 We will cover 40 AWS services (out of the 200+ in AWS)
 Sample question : Certified Cloud Practitioner
@@ -5068,6 +5076,10 @@ From a cloud perspective, Beanstalk is a platform-as-a-service, or PaaS, because
 
 **Elastic Beanstalk**
 
+Elastic Beanstalk is a managed service, which means all the EC2 instance configurations and operating system management are handled by Beanstalk itself. The deployment strategy can be configured, but the deployment itself is performed by Elastic Beanstalk. Capacity provisioning through an Auto Scaling group and load balancing are handled by Beanstalk, and application health monitoring and responsiveness are also included in the Beanstalk dashboard.
+
+So, what is your responsibility as a developer? That’s what makes Elastic Beanstalk a very developer-friendly service. There are three architecture models with Elastic Beanstalk. The first one is single-instance deployments, which is good for development environments. If you want to scale up, you can have a load balancer and an Auto Scaling group, which is ideal for production or pre-production web applications. Finally, if you want to have non-web apps in production, such as workers, you have an option to have only an Auto Scaling group as a standalone.
+
 * Managed service
   * Instance configuration / OS is handled by Beanstalk
   * Deployment strategy is configurable but performed by Elastic Beanstalk • Capacity provisioning
@@ -5109,6 +5121,215 @@ Now, I want to give you a better idea of how Elastic Beanstalk works
 ![](/img/08/27.png)
 
 
-####  Beanstalk Hands On
+####  Beanstalk Hands On ---> ERROR
 
+
+![](/img/08/28.png)
+
+Okay, so let's go ahead and practice using the Beanstalk service. I'm going to go into the Elastic Beanstalk console, and we're going to create our first application. We have an option to choose either a web server environment or a worker environment. Right now, I want to run a website, so we'll choose a web server environment. However, if I wanted to process tasks from a queue, then we would choose a worker environment, but for now, we will only do a web server. Let's create an application, and this one is called MyApplication.
+
+Next, we scroll down, and we have Environment Information. The environment is already built, but I'm going to call this one MyApplicationDev, because it represents my development environment. The domain name is automatically generated for my application, and this is how I will access my web servers. 
+
+![](/img/08/29.png)
+
+We scroll down again, and now we choose a platform. This platform is going to be managed, and I will choose Node.js, then just select the default options. You may see something different than I do, but by using the latest defaults, you should be fine.
+
+Next, we need to choose some application code. We'll use a simple application. We can definitely add that code, but we don't have it right now, so this simple application will match the environment I have right here. We scroll down further to the Presets. Beanstalk can be quite complicated for configuration, so we can set recommended values for either a single instance, which is free tier eligible, or high availability with a load balancer, or choose custom configuration if we want to customize everything. To keep things simple, we're going to go with a single instance. 
+
+![](/img/08/30.png)
+
+Click on Next.
+
+Next, we encounter a tricky part. We need to configure the service access, specifically the IAM roles that will allow Beanstalk to perform its necessary tasks. This is straightforward; we can create a new service role, which will create the Elastic Beanstalk service role. Currently, there might be a bug in the new console, and this isn't pre-filled, so we need to manually create the EC2 instance profile. 
+
+![](/img/08/31.png)
+
+To do this, I'm going into the IAM console, click on Roles on the left-hand side, and create a role. 
+
+![](/img/08/32.png)
+
+It's for a service, specifically for EC2. Click Next.
+
+![](/img/08/33.png)
+
+Then, for the permission policy, filter by typing "Beanstalk." You need to add the `web tier`, the `worker tier`, and the `multi-container Docker`. This should be enough to get started. 
+
+![](/img/08/34.png)
+
+Click Next, and then for the role name, enter "AWS-ElasticBeanstalk-EC2-role" with hyphens in between. Now, create this role. This role will be the one we use in Beanstalk.
+
+![](/img/08/35.png)
+
+Click Next, and then for the role name, enter "AWS-ElasticBeanstalk-EC2-role" with hyphens in between. Now, **`create this role`**. This role will be the one we use in Beanstalk.
+
+![](/img/08/36.png)
+
+I go back to the Beanstalk console, refresh the page, and as you can see, it’s now pre-filled with "AWS-ElasticBeanstalk-EC2-role." Once you've done that, you're good to go. If you click on Next, you will have to configure networking, databases, instance traffic scaling, and other settings, but these are optional. For now, we will click on "Skip to review" because we want to use the defaults we set for single instance mode.
+
+![](/img/08/38.png)
+
+
+Make sure under Service Access that you have the service role and EC2 instance profile selected. Once you're ready, click on Submit to create our first Beanstalk environment.
+
+![](/img/08/39.png)
+
+
+Make sure under Service Access that you have the service role and EC2 instance profile selected. Once you're ready, click on **`Submit`** to create our first Beanstalk environment.
+
+After submission, if you scroll down under Events, you can see that some events are happening.
+
+![](/img/08/40.png)
+
+These events are actually coming from a service called CloudFormation. If you go into the CloudFormation console,
+
+![](/img/08/41.png)
+
+---
+> 
+> NOTA:
+> Debes repasar este video
+> crea una nueva 
+> 
+>
+> you will see the Elastic Beanstalk stack right there. On the right-hand side, expand the view. Under Events, if you're keeping track, you will notice that resources are being created in progress. Once they are done, it changes to "Create Complete." This shows the sequence of events for all the things happening within your CloudFormation template—the various resources being created by CloudFormation. We'll see more about CloudFormation later, but under Resources, you can see that we have created an Auto Scaling Group, a Launch Configuration, an Elastic IP, and more.
+>
+>Under Templates, you can view the template in Application Composer, which visually represents what is being created by CloudFormation. For instance, you can see the Launch Configuration, Security Groups, Elastic IP, Wait Condition, and Condition Handle. It's very useful for visualizing what Elastic Beanstalk is creating behind the scenes.
+>
+>Returning to the Elastic Beanstalk console, in the Events tab, you will see more details. For example, a Security Group was created, followed by an Elastic IP. Then we wait for the EC2 instances to launch, and once they are up, they will be ready. Switching to the EC2 console and checking my running instances, I can see that one of my instances is running. It's using a T3 micro, and it has a public IP address. In the Elastic IPs section, we can see that this Elastic IP address was created and allocated to our EC2 instance. Under Auto Scaling Groups, we can see that an Auto Scaling Group was created, managing my single EC2 instance, which is why it's called a single EC2 instance.
+>
+>All of this aligns perfectly with how Beanstalk is designed. Once everything is launched, you'll get a message saying "Successfully launched," and the health status will be OK. The output includes a domain name. Clicking on this domain name and opening it in a new tab provides access to my Beanstalk environment and my single EC2 instance. It displays a message saying, "Congratulations, you are now running Elastic Beanstalk on this EC2 instance," which is great. Beanstalk created all the necessary infrastructure from the simple code we provided to successfully start our application and web server.
+>
+>Looking at some options, if we wanted to upload a new version, we could click to upload a new version, and it would automatically deploy to our EC2 instances. Although we won't do that now, it's good to know. The Health option provides information about the health checks for all instances, if there were multiple. Under Logs, you can view your application's logs. Monitoring allows you to check all the metrics for your application, providing a detailed, centralized view of your application. The Alarms section manages updates when Beanstalk decides to update your entire environment. Under Configuration, you can see all the configurations for your Beanstalk environment, modify them, and apply the changes. While these options are comprehensive, we don't need to dive into them right now.
+>
+>More importantly, under My Applications, you will see MyApplicationDev as one environment. You could create a second environment, for example, MyApplicationProd, which allows us to manage different environments effectively.
+>
+>To sum up, Beanstalk is centered around code and the environments for your code, whereas CloudFormation, which we mentioned earlier, is used to deploy stacks with any kind of infrastructure. We've seen everything that Beanstalk has created, including an Auto Scaling group, an EC2 instance, an Elastic IP, and more. If you're in a course that includes more Beanstalk lectures, such as the Certified Developer course, do not delete your application—you'll be using it more. If you've learned enough about Beanstalk for the exam, you can delete your application by selecting "Actions," then "Delete Application," and cleaning up afterward.
+>
+> That's it! Create your own code, and I'll see you in the next lecture.
+
+
+#### AWS CodeDeploy
+
+I've seen CloudFormation and Beanstalk, but now let's talk about CodeDeploy. CodeDeploy is another way for us to deploy our application automatically. The difference with CodeDeploy is that it is a bit more permissive; it doesn't need to be used with Beanstalk or CloudFormation. It operates completely independently. In CodeDeploy, we have our application at version 1, and we want to upgrade it to version 2. AWS CodeDeploy will provide a way for us to do this.
+
+CodeDeploy works with two main types of resources: EC2 instances and on-premises servers. You can have multiple EC2 instances being upgraded from version 1 to version 2. It also supports on-premises servers, meaning if you have servers on-premises and you want to upgrade them from version 1 to version 2 of your applications, this is possible with CodeDeploy. Because of this dual capability, CodeDeploy is considered a hybrid service since it works with both on-premises servers and EC2 instances.
+
+CodeDeploy allows you to work with any kind of servers, but you must provision these servers ahead of time. It's up to you to manage that, and you also need to configure them to install the CodeDeploy agent, which will assist with performing these upgrades. CodeDeploy is a very useful service on AWS because it facilitates transitioning from on-premises environments to AWS by using the same method to deploy applications on both on-premises servers and EC2 instances.
+
+It's an advanced service, so I can't demo it for you right now. However, the key point to remember is that CodeDeploy allows you to upgrade your applications on both EC2 instances and on-premises servers from version 1 to version 2 automatically, all from a single interface.
+
+![](/img/08/42.png)
+
+**DISCONTINUATION**
+
+
+We are going to learn about CodeCommit, but on July 25th, 2024, ATOS decided to discontinue the service. This means that new customers can no longer use CodeCommit, and ATOS is recommending migrating to another Git solution, such as GitLab, GitHub, or another third-party Git service. You may not be familiar with CodeCommit yet, but we'll learn more about it soon.
+
+For this course, CodeCommit might still appear on the exam for now, which is why I'm keeping the CodeCommit lectures. Whenever I mention CodeCommit throughout the course, even if it's in various places, just assume there's GitHub integration. Don't worry about it, because CodeCommit is essentially just a GitHub replacement. That's all you need to know, as you'll see very soon.
+
+So, that's it. You should be good for the course. Don't be concerned if you see CodeCommit mentioned here and there; it really doesn't matter. Now you know everything about this unfortunate event. All right, that's it. I hope you liked it, and I will see you in the next lecture.
+
+#### AWS CodeCommit
+
+So now let's get into the code-related tools in AWS. Before pushing the application code to servers, you need to store it somewhere, and developers typically choose a code repository. These repositories are usually backed by Git technology, GIT. A very famous public offering is called GitHub, but AWS has a competing product known as CodeCommit.
+
+CodeCommit is a way for you to store your code within AWS in a version-controlled repository. It is essentially a Git-based repository, and why would you want that? Well, once you have a Git-based repository, it becomes incredibly easy for developers to collaborate with each other on the code. The code changes are automatically versioned and can be rolled back. The benefit of using CodeCommit is that you have a fully managed code repository that is scalable and highly available. Additionally, because it lives within your AWS account, it is private and secure, and it integrates seamlessly with all AWS services.
+
+![](/img/08/43.png)
+
+
+#### AWS CodeBuild
+
+Now let's talk about another service called CodeBuild. The name is quite explicit—it allows you to build your code in the cloud. So, what does that mean? It means that your source code will be compiled, tests will be run, and the output will produce packages. These packages will then be ready to be deployed, for example, by CodeDeploy, onto servers where your application can run.
+
+As a diagram, what does this process look like? Let's say your code is in CodeCommit. CodeBuild retrieves the code from CodeCommit, runs scripts that you have defined, builds your code, and then provides a ready-to-deploy artifact.
+
+Why would you use CodeBuild? It's fully managed and serverless, continuously scalable, highly available, and secure. With pay-as-you-go pricing, you only pay for the time your code is being built. There are no servers to manage, allowing you to focus solely on coding. AWS handles the build process each time you push a code update into your CodeCommit repository.
+
+![](/img/08/44.png)
+
+
+#### AWS CodePipeline
+
+
+Next, we have CodePipeline. How do we connect CodeCommit and CodeBuild? We can do this using CodePipeline. CodePipeline allows us to orchestrate the different steps needed to automatically push code to production.
+
+What does this mean? For example, you might want to define a pipeline that takes the code, builds it, tests it, provisions servers, and then deploys the application on those servers. The process could be more complex, involving additional steps or checks. To orchestrate all these steps, you need a pipeline tool—this is where CodePipeline comes in.
+
+You may have heard of the term CI/CD, which stands for Continuous Integration and Continuous Delivery. This concept ensures that every time a developer pushes code into a repository, the code is built, tested, and deployed onto servers automatically.
+
+If we look at CodePipeline in action, imagine we have CodeCommit as the source layer. CodePipeline will take the code from CodeCommit, build it using CodeBuild, decide to deploy it using CodeDeploy, and maybe even deploy it into an Elastic Beanstalk environment. This is just one example of how to build a pipeline. There are many different ways to configure pipelines depending on your needs.
+
+Why use CodePipeline? The benefit is that it is fully managed and compatible with numerous services such as CodeCommit, CodeBuild, CodeDeploy, Elastic Beanstalk, CloudFormation, GitHub, other third-party services, and custom plugins. It provides fast delivery and rapid updates, making it a core part of the CI/CD services within AWS. Anytime you see orchestration or pipeline mentioned in an exam, think of AWS CodePipeline.
+
+
+![](/img/08/45.png)
+
+#### AWS CodeArtifact
+
+So now let's talk about AWS CodeArtifact. Software packages that a developer creates usually depend on each other to be built, forming an architecture of software packages known as code dependencies. To manage and store these dependencies, we use a process called artifact management. Traditionally, you would need to set up your own artifact management system, perhaps using Amazon S3 or custom software on EC2 instances, which can be complicated.
+
+AWS introduced CodeArtifact as a secure, scalable, and cost-effective artifact management service for software development. This means that instead of setting up your own infrastructure, you can simply use CodeArtifact. It supports all the common dependency management tools that developers use, such as Maven, Gradle, NPM, Yarn, Twine, Pip, and NuGet, allowing them to seamlessly interact with CodeArtifact to store and retrieve code dependencies.
+
+This provides your developers with a secure default location to store and retrieve these dependencies. For example, once you push code to CodeCommit, CodeBuild will build it, and CodeBuild can also retrieve the necessary dependencies directly from CodeArtifact.
+
+In summary, CodeArtifact is extremely useful if your team needs an artifact management system or a centralized place to store their code dependencies.
+
+
+* Software packages depend on each other to be built (also called code dependencies), and new ones are created
+* Storing and retrieving these dependencies is called artifact management
+* Traditionally you need to setup your own artifact management system
+* CodeAr tifact is a secure, scalable, and cost-effective ar tifact management for software development
+* Works with common dependency management tools such as Maven, Gradle, npm, yarn, twine, pip, and NuGet
+* Developers and CodeBuild can then retrieve dependencies straight from CodeAr tifact
+
+
+#### AWS Systems Manager (SSM)
+
+AWS Systems Manager, also called SSM, helps you manage your fleet of EC2 instances and on-premises systems at scale. It is a hybrid AWS service because it allows you to manage both on-premises and AWS resources. SSM offers a wide range of capabilities; it's quite comprehensive. As a systems manager, SSM provides operational insights about the state of your infrastructure and gives you access to a suite of over 10 products.
+
+You don't need to know all of the SSM products for the exam, but some of the most important features include:
+
+1. Automatic Patching: You can perform automatic patching of all your servers and instances to ensure end-to-end compliance.
+2. Command Execution: You can run commands across your entire fleet of servers directly from SSM.
+3. Parameter Store: You can store and manage configurations using the SSM Parameter Store.
+
+SSM is versatile and works with Linux, Windows, macOS, and Raspberry Pi systems. From an exam perspective, whenever you need to patch a fleet of EC2 instances or on-premises servers, think of SSM. Similarly, if you want to run a command consistently across all your servers, SSM is the right tool to use.
+
+* Helps you manage your EC2 and On-Premises systems at scale • Another Hybrid AWS service
+* Get operational insights about the state of your infrastructure
+* Suite of 10+ products
+* Most important features are:
+* Patching automation for enhanced compliance
+* Run commands across an entire fleet of servers
+* Store parameter configuration with the SSM Parameter Store
+* Works for Linux,Windows, MacOS, and Raspberry Pi OS (Raspbian)
+
+**How Systems Manager works**
+
+SSM operates independently, but you must first install the SSM agent on the systems you control. This agent is a small program that runs in the background. For Amazon Linux AMI or some Ubuntu AMIs on AWS, the SSM agent is installed by default.
+
+To manage EC2 instances and on-premises virtual machines, you must install the SSM agent on all these systems. The SSM agent will report back to the SSM service in AWS. Since it links to both EC2 instances and on-premises VMs, SSM qualifies as a hybrid service.
+
+If an instance cannot be controlled by SSM, the issue likely lies with the agent. Once the agent is properly installed on both your servers and EC2 instances, you can use the SSM service to run commands across all these servers, patch them all at once, or configure them consistently.
+
+Remembering these key points should prepare you well for the exam. SSM is an advanced service, so we won't be doing a hands-on demonstration, but understanding its functionality and use cases should suffice.
+
+![](/img/08/48.png)
+
+
+#### Systems Manager – SSM Session Manager
+
+
+
+#### AWS CodeStar
+
+
+![](/img/08/46.png)
+
+
+AWS Cloud9
+
+
+![](/img/08/47.png)
 
